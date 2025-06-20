@@ -1,6 +1,8 @@
 # decider
 
-A test of the decider pattern with spring modulith and pattern matching
+A test of the decider pattern with spring modulith and pattern matching.
+
+The goal of this project is to build a framework to implement the decider pattern in a spring modulith project.
 
 Features:
 
