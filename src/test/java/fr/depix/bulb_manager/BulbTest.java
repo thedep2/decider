@@ -12,6 +12,16 @@ class BulbTest {
     BulbService bulbService = new BulbService(bulbRepository);
 
     @Test
+    @DisplayName("Given a new bulb, when I check its state, then it should be off")
+    void newBulbIsOff() {
+        // Arrange
+        bulbService.newBulb();
+
+        // Act & Assert
+        Assertions.assertThat(bulbService.isTurnOn()).isFalse();
+    }
+
+    @Test
     @DisplayName("Given a turn off bulb, when I switch on, then I have a turn on bulb")
     void turnOn() {
         bulbService.newBulb();
