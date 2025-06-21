@@ -82,11 +82,11 @@ The project uses JUnit 5 (Jupiter) for testing with AssertJ for assertions.
 - [X] Split decider/evolve
 - [X] Use an event between
 - [X] Use a list of events
+- [ ] Build a framework
 - [ ] Initial state
 - [ ] Terminal state
 - [ ] Persist lists of events
 - [ ] Event sourcing
-- [ ] Build a framework
 - [ ] Module switch (two switches for one bulb)
 - [ ] Improve the framework
 - [ ] Add business validation rules
