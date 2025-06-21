@@ -1,17 +1,23 @@
 package fr.depix.bulb_manager;
 
-import fr.depix.bulb_manager.bulb.domain.BulbService;
 import fr.depix.bulb_manager.bulb.domain.command.BulbTurnOff;
 import fr.depix.bulb_manager.bulb.domain.command.BulbTurnOn;
+import fr.depix.bulb_manager.bulb.domain.service.BulbService;
 import fr.depix.bulb_manager.bulb.infra.InMemoryRepository;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 class BulbTest {
 
-    InMemoryRepository bulbRepository = new InMemoryRepository();
-    BulbService bulbService = new BulbService(bulbRepository);
+    final InMemoryRepository bulbRepository = new InMemoryRepository();
+    final BulbService bulbService = new BulbService(bulbRepository);
+
+    @AfterEach
+    void afterEach() {
+        bulbRepository.reset();
+    }
 
     @Test
     @DisplayName("Given a new bulb, when I check its state, then it should be off")

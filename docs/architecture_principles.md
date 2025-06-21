@@ -123,7 +123,7 @@ Based on the roadmap in the README, here is the plan for implementing these prin
 
 2. **Phase 2 - Event Sourcing**:
     - [X] Use an event between decider and evolver
-    - [ ] Use a list of events
+    - [X] Use a list of events
     - [ ] Initial state and terminal state
     - [ ] Persist event lists
     - [ ] Complete event sourcing

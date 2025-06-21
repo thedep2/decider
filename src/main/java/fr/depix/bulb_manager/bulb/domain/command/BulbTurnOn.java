@@ -1,4 +1,4 @@
 package fr.depix.bulb_manager.bulb.domain.command;
 
-public record BulbTurnOn() implements Command {
+public record BulbTurnOn() implements BulbCommand {
 }
