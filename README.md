@@ -26,14 +26,14 @@ The project follows these architectural principles:
 - **Hexagonal Architecture**: A domain model is isolated from infrastructure concerns
 - **SOLID Principles**: See [SOLID Analysis](docs/SOLID_analysis.md) for details
 - **Command Pattern**: Commands represent intentions to modify the state
-  - Commands are implemented as Java records that implement a sealed Command interface
-  - The BulbService handles commands using pattern matching with a switch statement
-  - This provides a clear separation between the intent to perform an action and the execution of that action
+    - Commands are implemented as Java records that implement a sealed Command interface
+    - The BulbService handles commands using pattern matching with a switch statement
+    - This provides a clear separation between the intent to perform an action and the execution of that action
 - **Event Pattern**: Events represent facts that have occurred as a result of command processing
-  - Events are implemented as Java records that implement a sealed Event interface
-  - The BulbService produces events based on commands and the current state
-  - Events are used to evolve the state of the application
-  - For more details, see [Event Pattern](docs/event_pattern.md)
+    - Events are implemented as Java records that implement a sealed Event interface
+    - The BulbService produces events based on commands and the current state
+    - Events are used to evolve the state of the application
+    - For more details, see [Event Pattern](docs/event_pattern.md)
 - **Spring Modulith**: Modules are defined by package structure with explicit dependencies
 
 ## Build/Configuration Instructions
@@ -76,19 +76,20 @@ The project uses JUnit 5 (Jupiter) for testing with AssertJ for assertions.
 ## Roadmap
 
 - [X] Naive implementation
-- [X] apply SOLID principles
+- [X] Apply SOLID principles
 - [X] Use commands
 - [X] Object immutable
 - [X] Split decider/evolve
 - [X] Use an event between
-- [ ] Use a list of events
+- [X] Use a list of events
 - [ ] Initial state
 - [ ] Terminal state
 - [ ] Persist lists of events
 - [ ] Event sourcing
-- [ ] Build framework
+- [ ] Build a framework
 - [ ] Module switch (two switches for one bulb)
 - [ ] Improve the framework
+- [ ] Add business validation rules
 
 ## Additional Documentation
 

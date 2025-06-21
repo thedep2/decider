@@ -109,9 +109,10 @@ The project uses the Command pattern:
 The project uses the Event pattern:
 
 - Events are implemented as Java records that implement a sealed Event interface
-- The BulbService produces events based on commands and the current state
+- The BulbService produces a list of events based on commands and the current state
+- In some cases, an empty list is returned, indicating that the command did not result in any state change
 - Events are used to evolve the state of the application
-- This approach separates the decision logic (what event to produce) from the evolution logic (how to change the state based on the event)
+- This approach separates the decision logic (what events to produce) from the evolution logic (how to change the state based on the events)
 - For more details, see [Event Pattern](event_pattern.md)
 
 ### Architecture

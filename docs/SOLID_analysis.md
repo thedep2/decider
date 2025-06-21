@@ -73,5 +73,3 @@ The Bulb Manager project generally respects the SOLID principles:
 
 **Improvement Suggestions**:
 - Make the `Bulb` class more extensible, for example by allowing the maximum lifespan to be configurable
-- Consider using immutable objects as mentioned in the roadmap
-- Complete the implementation of the Decider pattern by separating decision logic from state evolution

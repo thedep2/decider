@@ -51,8 +51,8 @@ Event Sourcing is a pattern where the state of an application is determined by a
 
 The project has begun implementing Event Sourcing:
 
-- [X] Use an event between the Event interface and its implementations (BulbSwitchedOn, BulbSwitchedOff, BulbWentOut, NothingHappen) have been created
-- [ ] Use a list of events
+- [X] Use an event between - The Event interface and its implementations (BulbSwitchedOn, BulbSwitchedOff, BulbWentOut) have been created
+- [X] Use a list of events
 - [ ] Persist event lists
 - [ ] Event sourcing
 

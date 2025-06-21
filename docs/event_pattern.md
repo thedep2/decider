@@ -11,7 +11,7 @@ The Event pattern is a key component of Event Sourcing, where the state of an ap
 The project defines a sealed interface `Event` that permits only specific event implementations:
 
 ```java
-public sealed interface Event permits BulbSwitchedOff, BulbSwitchedOn, BulbWentOut, NothingHappen {
+public sealed interface Event permits BulbSwitchedOff, BulbSwitchedOn, BulbWentOut {
 }
 ```
 
@@ -19,7 +19,7 @@ This sealed interface ensures type safety and restricts the possible event types
 
 ## Event Implementations
 
-The project currently has four event implementations:
+The project currently has three event implementations:
 
 1. **BulbSwitchedOn**: Represents the fact that a bulb has been turned on
    ```java
@@ -39,52 +39,49 @@ The project currently has four event implementations:
    }
    ```
 
-4. **NothingHappen**: Represents the fact that a command did not result in any state change
-   ```java
-   public record NothingHappen() implements Event {
-   }
-   ```
-
 All event implementations are Java records, which means they are immutable and provide built-in equals, hashCode, and toString methods.
 
 ## Event Handling
 
-Events are produced by the `BulbService` when processing commands:
+Events are produced by the `BulbService` when processing commands. The service uses a list of events to represent the result of a command:
 
 ```java
-Event event = switch (command) {
-    case BulbTurnOff ignored when bulb.isTurnOn() -> new BulbSwitchedOff();
-    case BulbTurnOff ignored -> new NothingHappen();
-    case BulbTurnOn ignored when !bulb.isTurnOn() && bulb.count() >= LIMIT -> new BulbWentOut();
-    case BulbTurnOn ignored when !bulb.isTurnOn() -> new BulbSwitchedOn();
-    case BulbTurnOn ignored -> new NothingHappen();
+List<Event> events = switch (command) {
+    case BulbTurnOff ignored when bulb.isTurnOn() -> List.of(new BulbSwitchedOff());
+    case BulbTurnOff ignored -> List.of();
+    case BulbTurnOn ignored when !bulb.isTurnOn() && bulb.count() >= LIMIT -> List.of(new BulbWentOut());
+    case BulbTurnOn ignored when !bulb.isTurnOn() -> List.of(new BulbSwitchedOn());
+    case BulbTurnOn ignored -> List.of();
 };
 ```
 
-This pattern matching approach provides a clear and concise way to determine which event should be produced based on the command and the current state of the bulb.
+This pattern matching approach provides a clear and concise way to determine which events should be produced based on the command and the current state of the bulb. Note that in some cases, an empty list is returned, indicating that the command did not result in any state change.
 
 ## State Evolution
 
-The produced events are then used to evolve the state of the bulb:
+The produced events are then used to evolve the state of the bulb. The service iterates through the list of events and applies each one to the current state:
 
 ```java
-Bulb newBulb = switch (event) {
-    case BulbSwitchedOff ignored -> new Bulb(false, bulb.count());
-    case BulbSwitchedOn ignored -> new Bulb(true, bulb.count() + 1);
-    case BulbWentOut ignored -> new Bulb(false, bulb.count());
-    case NothingHappen ignored -> bulb;
-};
+private static Bulb evolve(List<Event> events, Bulb bulb) {
+    for (Event event : events) {
+        bulb = switch (event) {
+            case BulbSwitchedOff ignored -> new Bulb(false, bulb.count());
+            case BulbSwitchedOn ignored -> new Bulb(true, bulb.count() + 1);
+            case BulbWentOut ignored -> new Bulb(false, bulb.count());
+        };
+    }
+    return bulb;
+}
 ```
 
 This approach separates the decision logic (what event to produce) from the evolution logic (how to change the state based on the event), which is a key aspect of the Decider pattern.
 
 ## Future Enhancements
 
-The current implementation uses a single event to represent the result of a command. Future enhancements planned in the roadmap include:
+The current implementation already uses a list of events to represent the result of a command. Future enhancements planned in the roadmap include:
 
-1. **Use a list of events**: Allow a command to produce multiple events
-2. **Persist event lists**: Store events in a persistent store
-3. **Event sourcing**: Rebuild the state of the application from the sequence of events
+1. **Persist event lists**: Store events in a persistent store
+2. **Event sourcing**: Rebuild the state of the application from the sequence of events
 
 These enhancements will further develop the Event Sourcing capabilities of the project.
 
