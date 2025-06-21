@@ -6,8 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class BulbManagerApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(BulbManagerApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(BulbManagerApplication.class, args);
+    }
 
 }
