@@ -1,8 +1,8 @@
 package fr.depix.bulb_manager;
 
 import fr.depix.bulb_manager.bulb.domain.BulbService;
-import fr.depix.bulb_manager.bulb.domain.command.SwitchOff;
-import fr.depix.bulb_manager.bulb.domain.command.SwitchOn;
+import fr.depix.bulb_manager.bulb.domain.command.BulbTurnOff;
+import fr.depix.bulb_manager.bulb.domain.command.BulbTurnOn;
 import fr.depix.bulb_manager.bulb.infra.InMemoryRepository;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -69,7 +69,9 @@ class BulbTest {
         givenNewBulb();
 
         whenSwitchOn();
+        whenSwitchOff();
         whenSwitchOn();
+        whenSwitchOff();
         whenSwitchOn();
 
         thenIHaveATurnOffBulb();
@@ -84,11 +86,11 @@ class BulbTest {
     }
 
     private void whenSwitchOn() {
-        bulbService.handleCommand(new SwitchOn());
+        bulbService.handleCommand(new BulbTurnOn());
     }
 
     private void whenSwitchOff() {
-        bulbService.handleCommand(new SwitchOff());
+        bulbService.handleCommand(new BulbTurnOff());
     }
 
     private void thenIHaveATurnOnBulb() {

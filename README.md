@@ -26,6 +26,14 @@ The project follows these architectural principles:
 - **Hexagonal Architecture**: A domain model is isolated from infrastructure concerns
 - **SOLID Principles**: See [SOLID Analysis](docs/SOLID_analysis.md) for details
 - **Command Pattern**: Commands represent intentions to modify the state
+  - Commands are implemented as Java records that implement a sealed Command interface
+  - The BulbService handles commands using pattern matching with a switch statement
+  - This provides a clear separation between the intent to perform an action and the execution of that action
+- **Event Pattern**: Events represent facts that have occurred as a result of command processing
+  - Events are implemented as Java records that implement a sealed Event interface
+  - The BulbService produces events based on commands and the current state
+  - Events are used to evolve the state of the application
+  - For more details, see [Event Pattern](docs/event_pattern.md)
 - **Spring Modulith**: Modules are defined by package structure with explicit dependencies
 
 ## Build/Configuration Instructions
@@ -39,10 +47,13 @@ The project follows these architectural principles:
 
 ```bash
 # Clean and build the project
-mvn clean package
+mvn clean install
 
-# Run the application (no interest)
+# Run the application
 mvn spring-boot:run
+
+# Skip tests during build
+mvn clean install -DskipTests
 ```
 
 ## Testing Information
@@ -53,6 +64,11 @@ Tests can be run using Maven:
 # Run all tests
 mvn test
 
+# Run a specific test class
+mvn test -Dtest=BulbTest
+
+# Run a specific test method
+mvn test -Dtest=BulbTest#turnOn
 ```
 
 The project uses JUnit 5 (Jupiter) for testing with AssertJ for assertions.
@@ -63,8 +79,8 @@ The project uses JUnit 5 (Jupiter) for testing with AssertJ for assertions.
 - [X] apply SOLID principles
 - [X] Use commands
 - [X] Object immutable
-- [ ] Split decider/evolve
-- [ ] Use an event between
+- [X] Split decider/evolve
+- [X] Use an event between
 - [ ] Use a list of events
 - [ ] Initial state
 - [ ] Terminal state
@@ -80,3 +96,5 @@ For more detailed information, please refer to:
 
 - [Architecture Principles](docs/architecture_principles.md) - Detailed explanation of CQRS/ES, modular architecture, and the Decider pattern
 - [Development Guidelines](docs/guidelines.md) - Guidelines for developers working on the project
+- [SOLID Analysis](docs/SOLID_analysis.md) - Analysis of how the project adheres to SOLID principles
+- [Event Pattern](docs/event_pattern.md) - Detailed explanation of the Event pattern implementation

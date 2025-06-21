@@ -105,6 +105,15 @@ The project uses the Command pattern:
 - The BulbService handles commands using pattern matching with a switch statement
 - This provides a clear separation between the intent to perform an action and the execution of that action
 
+### Event Pattern Implementation
+The project uses the Event pattern:
+
+- Events are implemented as Java records that implement a sealed Event interface
+- The BulbService produces events based on commands and the current state
+- Events are used to evolve the state of the application
+- This approach separates the decision logic (what event to produce) from the evolution logic (how to change the state based on the event)
+- For more details, see [Event Pattern](event_pattern.md)
+
 ### Architecture
 The project follows a hexagonal architecture pattern:
 

@@ -1,14 +1,21 @@
 package fr.depix.bulb_manager.bulb.domain;
 
 import fr.depix.bulb_manager.bulb.domain.aggregate.Bulb;
+import fr.depix.bulb_manager.bulb.domain.command.BulbTurnOff;
+import fr.depix.bulb_manager.bulb.domain.command.BulbTurnOn;
 import fr.depix.bulb_manager.bulb.domain.command.Command;
-import fr.depix.bulb_manager.bulb.domain.command.SwitchOff;
-import fr.depix.bulb_manager.bulb.domain.command.SwitchOn;
+import fr.depix.bulb_manager.bulb.domain.event.BulbSwitchedOff;
+import fr.depix.bulb_manager.bulb.domain.event.BulbSwitchedOn;
+import fr.depix.bulb_manager.bulb.domain.event.BulbWentOut;
+import fr.depix.bulb_manager.bulb.domain.event.Event;
+import fr.depix.bulb_manager.bulb.domain.event.NothingHappen;
 import fr.depix.bulb_manager.bulb.domain.spi.BulbRepository;
 import org.springframework.stereotype.Service;
 
 @Service
 public class BulbService {
+
+    public static final int LIMIT = 2;
 
     private BulbRepository bulbRepository;
 
@@ -27,21 +34,22 @@ public class BulbService {
     }
 
     public void handleCommand(Command command) {
-        switch (command) {
-            case SwitchOff ignored -> switchOff();
-            case SwitchOn ignored -> switchOn();
-        }
-    }
-
-    private void switchOff() {
         Bulb bulb = bulbRepository.get();
-        final Bulb newBulb = bulb.switchOff();
-        bulbRepository.save(newBulb);
-    }
 
-    private void switchOn() {
-        Bulb bulb = bulbRepository.get();
-        final Bulb newBulb = bulb.switchOn();
+        Event event = switch (command) {
+            case BulbTurnOff ignored when bulb.isTurnOn() -> new BulbSwitchedOff();
+            case BulbTurnOff ignored -> new NothingHappen();
+            case BulbTurnOn ignored when !bulb.isTurnOn() && bulb.count() >= LIMIT -> new BulbWentOut();
+            case BulbTurnOn ignored when !bulb.isTurnOn() -> new BulbSwitchedOn();
+            case BulbTurnOn ignored -> new NothingHappen();
+        };
+
+        Bulb newBulb = switch (event) {
+            case BulbSwitchedOff ignored -> new Bulb(false, bulb.count());
+            case BulbSwitchedOn ignored -> new Bulb(true, bulb.count() + 1);
+            case BulbWentOut ignored -> new Bulb(false, bulb.count());
+            case NothingHappen ignored -> bulb;
+        };
         bulbRepository.save(newBulb);
     }
 
