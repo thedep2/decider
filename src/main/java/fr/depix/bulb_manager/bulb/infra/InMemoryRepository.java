@@ -1,6 +1,6 @@
 package fr.depix.bulb_manager.bulb.infra;
 
-import fr.depix.bulb_manager.bulb.domain.Bulb;
+import fr.depix.bulb_manager.bulb.domain.aggregate.Bulb;
 import fr.depix.bulb_manager.bulb.domain.spi.BulbRepository;
 import org.springframework.stereotype.Repository;
 

@@ -1,5 +1,6 @@
 package fr.depix.bulb_manager.bulb.domain;
 
+import fr.depix.bulb_manager.bulb.domain.aggregate.Bulb;
 import fr.depix.bulb_manager.bulb.domain.command.Command;
 import fr.depix.bulb_manager.bulb.domain.command.SwitchOff;
 import fr.depix.bulb_manager.bulb.domain.command.SwitchOn;
@@ -34,12 +35,14 @@ public class BulbService {
 
     private void switchOff() {
         Bulb bulb = bulbRepository.get();
-        bulb.switchOff();
+        final Bulb newBulb = bulb.switchOff();
+        bulbRepository.save(newBulb);
     }
 
     private void switchOn() {
         Bulb bulb = bulbRepository.get();
-        bulb.switchOn();
+        final Bulb newBulb = bulb.switchOn();
+        bulbRepository.save(newBulb);
     }
 
 }

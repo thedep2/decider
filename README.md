@@ -62,7 +62,7 @@ The project uses JUnit 5 (Jupiter) for testing with AssertJ for assertions.
 - [X] Naive implementation
 - [X] apply SOLID principles
 - [X] Use commands
-- [ ] Object immutable
+- [X] Object immutable
 - [ ] Split decider/evolve
 - [ ] Use an event between
 - [ ] Use a list of events

@@ -1,6 +1,6 @@
 package fr.depix.bulb_manager.bulb.domain.spi;
 
-import fr.depix.bulb_manager.bulb.domain.Bulb;
+import fr.depix.bulb_manager.bulb.domain.aggregate.Bulb;
 
 public interface BulbRepository {
 

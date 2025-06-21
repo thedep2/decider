@@ -105,7 +105,7 @@ Based on the roadmap in the README, here is the plan for implementing these prin
 
 1. **Phase 1 - CQRS Foundations**:
    - [X] Use commands
-   - [ ] Make objects immutable
+   - [X] Make objects immutable
    - [ ] Separate decider/evolve
 
 2. **Phase 2 - Event Sourcing**:
