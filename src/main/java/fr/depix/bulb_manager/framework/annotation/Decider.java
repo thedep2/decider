@@ -1,7 +1,9 @@
 package fr.depix.bulb_manager.framework.annotation;
 
-import java.util.List;
+import fr.depix.bulb_manager.framework.decision.Decision;
+
+import java.util.Optional;
 import java.util.function.BiFunction;
 
-public interface Decider<I extends AggregateId, C extends Command<I>, A extends Aggregate<I>, E extends Event> extends BiFunction<C, A, List<E>> {
+public interface Decider<I extends AggregateId, C extends Command<I>, A extends Aggregate<I>, E extends Event, VE extends ValidationError> extends BiFunction<C, Optional<A>, Decision<E, VE>> {
 }

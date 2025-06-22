@@ -1,7 +1,7 @@
 package fr.depix.bulb_manager.bulb.infra;
 
 import fr.depix.bulb_manager.bulb.domain.aggregate.BulbAggregate;
-import fr.depix.bulb_manager.bulb.domain.aggregate.BulbId;
+import fr.depix.bulb_manager.bulb.domain.aggregate.id.BulbId;
 import fr.depix.bulb_manager.bulb.domain.spi.BulbRepository;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Repository;

@@ -1,15 +1,11 @@
 package fr.depix.bulb_manager.bulb.domain.aggregate;
 
+import fr.depix.bulb_manager.bulb.domain.BulbDomain;
 import fr.depix.bulb_manager.bulb.domain.aggregate.id.BulbId;
 
-public record InitialBulb(
+public record WentOutBulb(
         BulbId id
 ) implements BulbAggregate {
-
-    @Override
-    public BulbId id() {
-        return new BulbId(1L);
-    }
 
     @Override
     public boolean isTurnOn() {
@@ -18,6 +14,7 @@ public record InitialBulb(
 
     @Override
     public int count() {
-        return 0;
+        return BulbDomain.LIMIT;
     }
+
 }

@@ -89,7 +89,7 @@ The project uses JUnit 5 (Jupiter) for testing with AssertJ for assertions.
 - [X] Use a list of events
 - [X] Build a framework
 - [X] Initial state
-- [ ] Terminal state
+- [X] Terminal state
 - [ ] Persist lists of events
 - [ ] Event sourcing
 - [ ] Module switch (two switches for one bulb)

@@ -75,7 +75,16 @@ public interface InitialState<I extends AggregateId> extends Aggregate<I> {
 }
 ```
 
-### 8. Repository
+### 8. IsTerminal
+
+An IsTerminal is a predicate that determines if an Aggregate is in a terminal state. Terminal states are states from which no further state transitions are allowed.
+
+```java
+public interface IsTerminal<A extends Aggregate<I>, I extends AggregateId> extends Predicate<A> {
+}
+```
+
+### 9. Repository
 
 A Repository is responsible for storing and retrieving Aggregates.
 
@@ -86,28 +95,41 @@ public interface Repository<A extends Aggregate<I>, I extends AggregateId> {
 }
 ```
 
-### 9. CommandHandler
+### 10. CommandHandler
 
 A CommandHandler orchestrates the processing of a Command. It retrieves the Aggregate from the Repository, applies the Decider to produce Events, applies the Evolve function to produce a new state, and then saves the new state to the Repository.
 
 ```java
-public class CommandHandler<A extends Aggregate<I>, I extends AggregateId, C extends Command<I>, R extends Repository<A, I>, E extends Event> {
-    private final R repository;
-    private final Decider<I, C, A, E> decider;
-    private final Evolve<I, A, E> evolve;
+public class CommandHandler<
+        A extends Aggregate<I>,
+        I extends AggregateId,
+        C extends Command<I>,
+        R extends Repository<A, I>,
+        E extends Event,
+        T extends IsTerminal<A, I>,
+        D extends Decider<I, C, A, E, VE>,
+        V extends Evolve<I, A, E>,
+        VE extends ValidationError> {
 
-    public CommandHandler(R repository, Decider<I, C, A, E> decider, Evolve<I, A, E> evolve) {
-        this.repository = repository;
-        this.decider = decider;
-        this.evolve = evolve;
+    private final D decider;
+    private final V evolve;
+    private final R repository;
+
+    public CommandHandler(Domain<A, I, C, R, E, T, D, V, VE> domain) {
+        this.repository = domain.repository().get();
+        this.decider = domain.decider();
+        this.evolve = domain.evolve();
     }
 
     public void handle(C command) {
-        A aggregate = repository.findById(command.aggregateId())
-                               .orElseThrow(AggregateNotFoundRuntimeException::new);
+        Optional<A> aggregate = repository.findById(command.aggregateId());
 
-        final List<E> events = decider.apply(command, aggregate);
-        final A newState = evolve.apply(aggregate, events);
+        final Decision<E, VE> decision = decider.apply(command, aggregate);
+
+        final A newState = switch (decision) {
+            case EventList<E, VE> events -> evolve.apply(aggregate, events.events());
+            case ErrorList<E, VE> ignored -> throw new RuntimeException();
+        };
 
         repository.save(newState);
     }
@@ -135,7 +157,7 @@ public class CommandHandler<A extends Aggregate<I>, I extends AggregateId, C ext
 As outlined in the project roadmap, future enhancements to the Decider Framework include:
 
 1. **Initial State**: ✅ Support for creating an Aggregate with an initial state - Implemented with the InitialState interface and InitialBulb implementation
-2. **Terminal State**: Support for marking an Aggregate as terminal, preventing further state changes
+2. **Terminal State**: ✅ Support for marking an Aggregate as terminal, preventing further state changes - Implemented with the IsTerminal interface and WentOutBulb implementation
 3. **Persist Lists of Events**: Store events in a persistent store for auditing and event sourcing
 4. **Event Sourcing**: Rebuild the state of an Aggregate from the sequence of Events
 5. **Improve the Framework**: Enhance the framework with additional features and optimizations

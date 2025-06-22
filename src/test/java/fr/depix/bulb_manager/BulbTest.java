@@ -1,8 +1,9 @@
 package fr.depix.bulb_manager;
 
-import fr.depix.bulb_manager.bulb.domain.aggregate.BulbId;
+import fr.depix.bulb_manager.bulb.domain.aggregate.id.BulbId;
 import fr.depix.bulb_manager.bulb.domain.command.BulbTurnOff;
 import fr.depix.bulb_manager.bulb.domain.command.BulbTurnOn;
+import fr.depix.bulb_manager.bulb.domain.command.CreateBulB;
 import fr.depix.bulb_manager.bulb.domain.service.BulbService;
 import fr.depix.bulb_manager.bulb.infra.InMemoryRepository;
 import org.assertj.core.api.Assertions;
@@ -85,7 +86,7 @@ class BulbTest {
     }
 
     private void givenNewBulb() {
-        bulbService.newBulb();
+        bulbService.handleCommand(new CreateBulB(new BulbId(1L)));
     }
 
     private void thenIHaveATurnOffBulb() {

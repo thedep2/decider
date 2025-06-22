@@ -1,16 +1,11 @@
 package fr.depix.bulb_manager.bulb.domain.aggregate;
 
+import fr.depix.bulb_manager.bulb.domain.aggregate.id.BulbId;
+
 public record Bulb(
+        BulbId id,
         boolean isTurnOn,
         int count
 ) implements BulbAggregate {
 
-    public Bulb() {
-        this(false, 0);
-    }
-
-    @Override
-    public BulbId aggregateId() {
-        return new BulbId(1L);
-    }
 }

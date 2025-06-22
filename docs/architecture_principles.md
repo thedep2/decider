@@ -54,7 +54,7 @@ The project has begun implementing Event Sourcing:
 - [X] Use an event between - The Event interface and its implementations (BulbSwitchedOn, BulbSwitchedOff, BulbWentOut) have been created
 - [X] Use a list of events
 - [X] Initial state - The InitialState interface and InitialBulb implementation have been created
-- [ ] Terminal state
+- [X] Terminal state - The IsTerminal interface and WentOutBulb implementation have been created
 - [ ] Persist event lists
 - [ ] Event sourcing
 
@@ -130,7 +130,7 @@ Based on the roadmap in the README, here is the plan for implementing these prin
     - [X] Use an event between decider and evolver
     - [X] Use a list of events
     - [X] Initial state - Implemented with the InitialState interface and InitialBulb implementation
-    - [ ] Terminal state
+    - [X] Terminal state - Implemented with the IsTerminal interface and WentOutBulb implementation
     - [ ] Persist event lists
     - [ ] Complete event sourcing
 
