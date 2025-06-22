@@ -1,14 +1,12 @@
 package fr.depix.bulb_manager.bulb.domain.spi;
 
-import fr.depix.bulb_manager.bulb.domain.aggregate.Bulb;
+import fr.depix.bulb_manager.bulb.domain.aggregate.BulbAggregate;
 import fr.depix.bulb_manager.bulb.domain.aggregate.BulbId;
 import fr.depix.bulb_manager.framework.annotation.Repository;
 
 import java.util.Optional;
 
-public interface BulbRepository extends Repository<Bulb, BulbId> {
+public interface BulbRepository extends Repository<BulbAggregate, BulbId> {
 
-    void save(Bulb bulb);
-
-    Optional<Bulb> get();
+    Optional<BulbAggregate> get();
 }

@@ -11,13 +11,13 @@ import fr.depix.bulb_manager.framework.exception.AggregateNotFoundRuntimeExcepti
 
 import java.util.List;
 
-public class CommandHandler<A extends Aggregate, I extends AggregateId, C extends Command<I>, R extends Repository<A, I>, E extends Event> {
+public class CommandHandler<A extends Aggregate<I>, I extends AggregateId, C extends Command<I>, R extends Repository<A, I>, E extends Event> {
 
     private final R repository;
     private final Decider<I, C, A, E> decider;
-    private final Evolve<A, E> evolve;
+    private final Evolve<I, A, E> evolve;
 
-    public CommandHandler(R repository, Decider<I, C, A, E> decider, Evolve<A, E> evolve) {
+    public CommandHandler(R repository, Decider<I, C, A, E> decider, Evolve<I, A, E> evolve) {
         this.repository = repository;
         this.decider = decider;
         this.evolve = evolve;

@@ -1,6 +1,6 @@
 package fr.depix.bulb_manager.bulb.infra;
 
-import fr.depix.bulb_manager.bulb.domain.aggregate.Bulb;
+import fr.depix.bulb_manager.bulb.domain.aggregate.BulbAggregate;
 import fr.depix.bulb_manager.bulb.domain.aggregate.BulbId;
 import fr.depix.bulb_manager.bulb.domain.spi.BulbRepository;
 import org.jspecify.annotations.Nullable;
@@ -12,15 +12,10 @@ import java.util.Optional;
 public class InMemoryRepository implements BulbRepository {
 
     @Nullable
-    private Bulb bulb;
+    private BulbAggregate bulb;
 
     @Override
-    public void save(Bulb bulb) {
-        this.bulb = bulb;
-    }
-
-    @Override
-    public Optional<Bulb> get() {
+    public Optional<BulbAggregate> get() {
         return Optional.ofNullable(bulb);
     }
 
@@ -29,7 +24,12 @@ public class InMemoryRepository implements BulbRepository {
     }
 
     @Override
-    public Optional<Bulb> findById(BulbId id) {
+    public Optional<BulbAggregate> findById(BulbId id) {
         return Optional.ofNullable(bulb);
+    }
+
+    @Override
+    public void save(BulbAggregate newState) {
+        this.bulb = newState;
     }
 }

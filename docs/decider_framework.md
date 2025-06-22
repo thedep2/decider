@@ -15,7 +15,8 @@ The framework consists of several key components:
 An Aggregate is a domain object that represents a business entity. It encapsulates state and ensures that the state transitions are valid.
 
 ```java
-public interface Aggregate {
+public interface Aggregate<I extends AggregateId> {
+    I aggregateId();
 }
 ```
 
@@ -52,7 +53,7 @@ public interface Event {
 A Decider is a function that takes a Command and an Aggregate and produces a list of Events. It decides what events to produce based on the current state of the aggregate and the command being processed.
 
 ```java
-public interface Decider<I extends AggregateId, C extends Command<I>, A extends Aggregate, E extends Event> extends BiFunction<C, A, List<E>> {
+public interface Decider<I extends AggregateId, C extends Command<I>, A extends Aggregate<I>, E extends Event> extends BiFunction<C, A, List<E>> {
 }
 ```
 
@@ -61,32 +62,41 @@ public interface Decider<I extends AggregateId, C extends Command<I>, A extends 
 An Evolve function takes an Aggregate and a list of Events and produces a new Aggregate. It applies the events to the current state of the aggregate to produce a new state.
 
 ```java
-public interface Evolve<A extends Aggregate, E extends Event> extends BiFunction<A, List<E>, A> {
+public interface Evolve<I extends AggregateId, A extends Aggregate<I>, E extends Event> extends BiFunction<A, List<E>, A> {
 }
 ```
 
-### 7. Repository
+### 7. InitialState
+
+An InitialState is a special type of Aggregate that represents the initial state of an Aggregate. It is used to create a new Aggregate with a predefined initial state.
+
+```java
+public interface InitialState<I extends AggregateId> extends Aggregate<I> {
+}
+```
+
+### 8. Repository
 
 A Repository is responsible for storing and retrieving Aggregates.
 
 ```java
-public interface Repository<A extends Aggregate, I extends AggregateId> {
+public interface Repository<A extends Aggregate<I>, I extends AggregateId> {
     Optional<A> findById(I id);
     void save(A aggregate);
 }
 ```
 
-### 8. CommandHandler
+### 9. CommandHandler
 
 A CommandHandler orchestrates the processing of a Command. It retrieves the Aggregate from the Repository, applies the Decider to produce Events, applies the Evolve function to produce a new state, and then saves the new state to the Repository.
 
 ```java
-public class CommandHandler<A extends Aggregate, I extends AggregateId, C extends Command<I>, R extends Repository<A, I>, E extends Event> {
+public class CommandHandler<A extends Aggregate<I>, I extends AggregateId, C extends Command<I>, R extends Repository<A, I>, E extends Event> {
     private final R repository;
     private final Decider<I, C, A, E> decider;
-    private final Evolve<A, E> evolve;
+    private final Evolve<I, A, E> evolve;
 
-    public CommandHandler(R repository, Decider<I, C, A, E> decider, Evolve<A, E> evolve) {
+    public CommandHandler(R repository, Decider<I, C, A, E> decider, Evolve<I, A, E> evolve) {
         this.repository = repository;
         this.decider = decider;
         this.evolve = evolve;
@@ -124,7 +134,7 @@ public class CommandHandler<A extends Aggregate, I extends AggregateId, C extend
 
 As outlined in the project roadmap, future enhancements to the Decider Framework include:
 
-1. **Initial State**: Support for creating an Aggregate with an initial state
+1. **Initial State**: ✅ Support for creating an Aggregate with an initial state - Implemented with the InitialState interface and InitialBulb implementation
 2. **Terminal State**: Support for marking an Aggregate as terminal, preventing further state changes
 3. **Persist Lists of Events**: Store events in a persistent store for auditing and event sourcing
 4. **Event Sourcing**: Rebuild the state of an Aggregate from the sequence of Events

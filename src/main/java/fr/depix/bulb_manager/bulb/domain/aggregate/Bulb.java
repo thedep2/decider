@@ -1,11 +1,9 @@
 package fr.depix.bulb_manager.bulb.domain.aggregate;
 
-import fr.depix.bulb_manager.framework.annotation.Aggregate;
-
 public record Bulb(
         boolean isTurnOn,
         int count
-) implements Aggregate<BulbId> {
+) implements BulbAggregate {
 
     public Bulb() {
         this(false, 0);

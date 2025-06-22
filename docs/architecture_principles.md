@@ -53,6 +53,8 @@ The project has begun implementing Event Sourcing:
 
 - [X] Use an event between - The Event interface and its implementations (BulbSwitchedOn, BulbSwitchedOff, BulbWentOut) have been created
 - [X] Use a list of events
+- [X] Initial state - The InitialState interface and InitialBulb implementation have been created
+- [ ] Terminal state
 - [ ] Persist event lists
 - [ ] Event sourcing
 
@@ -127,11 +129,12 @@ Based on the roadmap in the README, here is the plan for implementing these prin
 2. **Phase 2 - Event Sourcing**:
     - [X] Use an event between decider and evolver
     - [X] Use a list of events
-    - [ ] Initial state and terminal state
+    - [X] Initial state - Implemented with the InitialState interface and InitialBulb implementation
+    - [ ] Terminal state
     - [ ] Persist event lists
     - [ ] Complete event sourcing
 
 3. **Phase 3 - Framework and Modularity**:
-    - [ ] Build a framework
+    - [X] Build a framework - Implemented with the CommandHandler, Decider, Evolve, and other framework components
     - [ ] Switch module (two switches for one bulb)
     - [ ] Improve the framework

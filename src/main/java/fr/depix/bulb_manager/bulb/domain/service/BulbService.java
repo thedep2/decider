@@ -1,7 +1,9 @@
 package fr.depix.bulb_manager.bulb.domain.service;
 
 import fr.depix.bulb_manager.bulb.domain.aggregate.Bulb;
+import fr.depix.bulb_manager.bulb.domain.aggregate.BulbAggregate;
 import fr.depix.bulb_manager.bulb.domain.aggregate.BulbId;
+import fr.depix.bulb_manager.bulb.domain.aggregate.InitialBulb;
 import fr.depix.bulb_manager.bulb.domain.command.BulbCommand;
 import fr.depix.bulb_manager.bulb.domain.command.BulbTurnOff;
 import fr.depix.bulb_manager.bulb.domain.command.BulbTurnOn;
@@ -44,7 +46,7 @@ public class BulbService {
 
     private final BulbRepository bulbRepository;
 
-    private final CommandHandler<Bulb, BulbId, BulbCommand, BulbRepository, BulbEvent> commandHandler;
+    private final CommandHandler<BulbAggregate, BulbId, BulbCommand, BulbRepository, BulbEvent> commandHandler;
 
     public BulbService(BulbRepository bulbRepository) {
         this.bulbRepository = bulbRepository;
@@ -52,7 +54,7 @@ public class BulbService {
     }
 
     public void newBulb() {
-        bulbRepository.save(new Bulb());
+        bulbRepository.save(new InitialBulb());
     }
 
     public boolean isTurnOn() {
