@@ -98,19 +98,22 @@ The project follows a hexagonal architecture (or ports and adapters):
 
 ### Principles of the Decider Pattern
 
-The Decider pattern is a functional pattern that separates decision logic (what to do) from evolution logic (how to change state).
+The Decider pattern is a functional pattern that separates decision logic (what events to produce) from evolution logic (how to change state based on events). This separation makes the code more maintainable, testable, and easier to reason about.
 
 #### Current State
 
 The project has implemented the Decider pattern:
 
 - [X] Separation of decider/evolve
+- [X] Build a framework
 
-#### Planned Implementation
+#### Implementation
 
 1. **Decider**: Pure function that takes a state and a command, and returns events
 2. **Evolve**: Pure function that takes a state and an event, and returns a new state
-3. **Decide+Evolve**: Combination of both to process a command and update the state
+3. **CommandHandler**: Orchestrates the process of handling a command, applying the decider, evolving the state, and saving the result
+
+For a detailed explanation of the Decider Framework implementation, see [Decider Framework](decider_framework.md).
 
 ## Roadmap
 

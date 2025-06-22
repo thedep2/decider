@@ -1,4 +1,13 @@
 package fr.depix.bulb_manager.bulb.domain.command;
 
-public record BulbTurnOn() implements BulbCommand {
+import fr.depix.bulb_manager.bulb.domain.aggregate.BulbId;
+
+public record BulbTurnOn(
+        BulbId id
+) implements BulbCommand {
+
+    @Override
+    public BulbId aggregateId() {
+        return id;
+    }
 }

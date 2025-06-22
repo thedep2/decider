@@ -1,5 +1,6 @@
 package fr.depix.bulb_manager;
 
+import fr.depix.bulb_manager.bulb.domain.aggregate.BulbId;
 import fr.depix.bulb_manager.bulb.domain.command.BulbTurnOff;
 import fr.depix.bulb_manager.bulb.domain.command.BulbTurnOn;
 import fr.depix.bulb_manager.bulb.domain.service.BulbService;
@@ -92,11 +93,11 @@ class BulbTest {
     }
 
     private void whenSwitchOn() {
-        bulbService.handleCommand(new BulbTurnOn());
+        bulbService.handleCommand(new BulbTurnOn(new BulbId(1L)));
     }
 
     private void whenSwitchOff() {
-        bulbService.handleCommand(new BulbTurnOff());
+        bulbService.handleCommand(new BulbTurnOff(new BulbId(1L)));
     }
 
     private void thenIHaveATurnOnBulb() {

@@ -34,6 +34,11 @@ The project follows these architectural principles:
     - The BulbService produces events based on commands and the current state
     - Events are used to evolve the state of the application
     - For more details, see [Event Pattern](docs/event_pattern.md)
+- **Decider Pattern**: Separates decision logic from evolution logic
+    - The Decider decides what events to produce based on the current state and the command
+    - The Evolve function applies events to the current state to produce a new state
+    - The CommandHandler orchestrates the process of handling a command
+    - For more details, see [Decider Framework](docs/decider_framework.md)
 - **Spring Modulith**: Modules are defined by package structure with explicit dependencies
 
 ## Build/Configuration Instructions
@@ -82,7 +87,7 @@ The project uses JUnit 5 (Jupiter) for testing with AssertJ for assertions.
 - [X] Split decider/evolve
 - [X] Use an event between
 - [X] Use a list of events
-- [ ] Build a framework
+- [X] Build a framework
 - [ ] Initial state
 - [ ] Terminal state
 - [ ] Persist lists of events
@@ -90,6 +95,7 @@ The project uses JUnit 5 (Jupiter) for testing with AssertJ for assertions.
 - [ ] Module switch (two switches for one bulb)
 - [ ] Improve the framework
 - [ ] Add business validation rules
+- [ ] Add validation by ArchUnit
 
 ## Additional Documentation
 
@@ -99,3 +105,4 @@ For more detailed information, please refer to:
 - [Development Guidelines](docs/guidelines.md) - Guidelines for developers working on the project
 - [SOLID Analysis](docs/SOLID_analysis.md) - Analysis of how the project adheres to SOLID principles
 - [Event Pattern](docs/event_pattern.md) - Detailed explanation of the Event pattern implementation
+- [Decider Framework](docs/decider_framework.md) - Detailed explanation of the Decider Framework implementation

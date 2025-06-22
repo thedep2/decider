@@ -115,6 +115,15 @@ The project uses the Event pattern:
 - This approach separates the decision logic (what events to produce) from the evolution logic (how to change the state based on the events)
 - For more details, see [Event Pattern](event_pattern.md)
 
+### Decider Pattern Implementation
+The project uses the Decider pattern:
+
+- The Decider is a function that takes a Command and an Aggregate and produces a list of Events
+- The Evolve function takes an Aggregate and a list of Events and produces a new Aggregate
+- The CommandHandler orchestrates the process of handling a command, applying the decider, evolving the state, and saving the result
+- This separation of concerns makes the code more maintainable, testable, and easier to reason about
+- For more details, see [Decider Framework](decider_framework.md)
+
 ### Architecture
 The project follows a hexagonal architecture pattern:
 

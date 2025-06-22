@@ -1,6 +1,7 @@
 package fr.depix.bulb_manager.bulb.domain.service;
 
 import fr.depix.bulb_manager.bulb.domain.aggregate.Bulb;
+import fr.depix.bulb_manager.bulb.domain.aggregate.BulbId;
 import fr.depix.bulb_manager.bulb.domain.command.BulbCommand;
 import fr.depix.bulb_manager.bulb.domain.command.BulbTurnOff;
 import fr.depix.bulb_manager.bulb.domain.command.BulbTurnOn;
@@ -9,6 +10,8 @@ import fr.depix.bulb_manager.bulb.domain.event.BulbSwitchedOff;
 import fr.depix.bulb_manager.bulb.domain.event.BulbSwitchedOn;
 import fr.depix.bulb_manager.bulb.domain.event.BulbWentOut;
 import fr.depix.bulb_manager.bulb.domain.spi.BulbRepository;
+import fr.depix.bulb_manager.framework.exception.AggregateNotFoundRuntimeException;
+import fr.depix.bulb_manager.framework.service.CommandHandler;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -41,8 +44,11 @@ public class BulbService {
 
     private final BulbRepository bulbRepository;
 
+    private final CommandHandler<Bulb, BulbId, BulbCommand, BulbRepository, BulbEvent> commandHandler;
+
     public BulbService(BulbRepository bulbRepository) {
         this.bulbRepository = bulbRepository;
+        this.commandHandler = new CommandHandler<>(bulbRepository, DECIDER, EVOLVE);
     }
 
     public void newBulb() {
@@ -50,17 +56,13 @@ public class BulbService {
     }
 
     public boolean isTurnOn() {
-        return bulbRepository.get().isTurnOn();
+        return bulbRepository.get()
+                             .orElseThrow(AggregateNotFoundRuntimeException::new)
+                             .isTurnOn();
     }
 
     public void handleCommand(BulbCommand command) {
-        final Bulb bulb = bulbRepository.get();
-
-        final List<BulbEvent> events = DECIDER.apply(command, bulb);
-
-        final Bulb newBulb = EVOLVE.apply(bulb, events);
-
-        bulbRepository.save(newBulb);
+        commandHandler.handle(command);
     }
 
 }

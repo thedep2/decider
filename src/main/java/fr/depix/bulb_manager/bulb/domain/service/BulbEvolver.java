@@ -2,11 +2,9 @@ package fr.depix.bulb_manager.bulb.domain.service;
 
 import fr.depix.bulb_manager.bulb.domain.aggregate.Bulb;
 import fr.depix.bulb_manager.bulb.domain.event.BulbEvent;
-
-import java.util.List;
-import java.util.function.BiFunction;
+import fr.depix.bulb_manager.framework.annotation.Evolve;
 
 @FunctionalInterface
-public interface BulbEvolver extends BiFunction<Bulb, List<BulbEvent>, Bulb> {
+public interface BulbEvolver extends Evolve<Bulb, BulbEvent> {
 
 }

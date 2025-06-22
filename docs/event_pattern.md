@@ -94,3 +94,14 @@ The Event pattern works in conjunction with other patterns in the project:
 - **CQRS**: Commands produce events, which are then used to update the write model
 
 Together, these patterns provide a robust foundation for building a maintainable and scalable application.
+
+## Framework Implementation
+
+The project has implemented a framework to support the Event pattern:
+
+- **Event Interface**: A marker interface that all events must implement
+- **CommandHandler**: Orchestrates the process of handling a command, applying the decider to produce events, evolving the state, and saving the result
+- **Decider**: Produces events based on the current state and the command
+- **Evolve**: Applies events to the current state to produce a new state
+
+For a detailed explanation of the framework implementation, see [Decider Framework](decider_framework.md).

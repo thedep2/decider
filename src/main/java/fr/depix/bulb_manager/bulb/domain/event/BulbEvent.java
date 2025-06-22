@@ -1,5 +1,7 @@
 package fr.depix.bulb_manager.bulb.domain.event;
 
-public sealed interface BulbEvent permits BulbSwitchedOff, BulbSwitchedOn, BulbWentOut {
+import fr.depix.bulb_manager.framework.annotation.Event;
+
+public sealed interface BulbEvent extends Event permits BulbSwitchedOff, BulbSwitchedOn, BulbWentOut {
 }
 
