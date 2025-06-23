@@ -7,13 +7,22 @@ public record WentOutBulb(
         BulbId id
 ) implements BulbAggregate {
 
+    public WentOutBulb(BulbAggregate bulbAggregate) {
+        this(bulbAggregate.id());
+    }
+
     @Override
     public boolean isTurnOn() {
         return false;
     }
 
     @Override
-    public int count() {
+    public Count count() {
+        return new Count(BulbDomain.LIMIT);
+    }
+
+    @Override
+    public int nbActivation() {
         return BulbDomain.LIMIT;
     }
 

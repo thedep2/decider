@@ -8,5 +8,5 @@ import java.util.Optional;
 
 public interface BulbRepository extends Repository<BulbAggregate, BulbId> {
 
-    Optional<BulbAggregate> get();
+    Optional<BulbAggregate> find();
 }

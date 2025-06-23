@@ -1,8 +1,9 @@
 package fr.depix.bulb_manager.bulb.domain;
 
-import fr.depix.bulb_manager.bulb.domain.aggregate.Bulb;
 import fr.depix.bulb_manager.bulb.domain.aggregate.BulbAggregate;
 import fr.depix.bulb_manager.bulb.domain.aggregate.InitialBulb;
+import fr.depix.bulb_manager.bulb.domain.aggregate.OffBulb;
+import fr.depix.bulb_manager.bulb.domain.aggregate.OnBulb;
 import fr.depix.bulb_manager.bulb.domain.aggregate.WentOutBulb;
 import fr.depix.bulb_manager.bulb.domain.aggregate.id.BulbId;
 import fr.depix.bulb_manager.bulb.domain.command.BulbCommand;
@@ -38,7 +39,7 @@ public record BulbDomain(
 
     @Override
     public BulbIsTerminal isTerminal() {
-        return bulbAggregate -> bulbAggregate.count() >= LIMIT || bulbAggregate instanceof WentOutBulb;
+        return bulbAggregate -> bulbAggregate.nbActivation() >= LIMIT || bulbAggregate instanceof WentOutBulb;
     }
 
     @Override
@@ -56,7 +57,7 @@ public record BulbDomain(
                 case CreateBulB createBulB -> new EventList<>(List.of(new BulbCreated(createBulB.bulbId())));
                 case BulbTurnOff ignored when bulb.isTurnOn() -> new EventList<>(List.of(new BulbSwitchedOff()));
                 case BulbTurnOff ignored -> new EventList<>(List.of());
-                case BulbTurnOn ignored when !bulb.isTurnOn() && bulb.count() >= LIMIT -> new EventList<>(List.of(new BulbWentOut()));
+                case BulbTurnOn ignored when !bulb.isTurnOn() && bulb.nbActivation() >= LIMIT -> new EventList<>(List.of(new BulbWentOut()));
                 case BulbTurnOn ignored when !bulb.isTurnOn() -> new EventList<>(List.of(new BulbSwitchedOn()));
                 case BulbTurnOn ignored -> new EventList<>(List.of());
             };
@@ -70,9 +71,9 @@ public record BulbDomain(
             for (BulbEvent event : bulbEvents) {
                 bulb = switch (event) {
                     case BulbCreated bulbCreated -> initialState(bulbCreated.bulbId());
-                    case BulbSwitchedOff ignored -> new Bulb(bulb.id(), false, bulb.count());
-                    case BulbSwitchedOn ignored -> new Bulb(bulb.id(), true, bulb.count() + 1);
-                    case BulbWentOut ignored -> new WentOutBulb(bulb.id());
+                    case BulbSwitchedOff ignored -> new OffBulb(bulb);
+                    case BulbSwitchedOn ignored -> new OnBulb(bulb);
+                    case BulbWentOut ignored -> terminalState(bulb);
                 };
             }
             return bulb;

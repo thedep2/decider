@@ -25,7 +25,7 @@ public class BulbService {
     }
 
     public boolean isTurnOn() {
-        return bulbRepository.get()
+        return bulbRepository.find()
                              .orElseThrow(AggregateNotFoundRuntimeException::new)
                              .isTurnOn();
     }

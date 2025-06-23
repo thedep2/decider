@@ -6,6 +6,8 @@ public record InitialBulb(
         BulbId id
 ) implements BulbAggregate {
 
+    public static final int INITIALE_COUNT = 0;
+
     @Override
     public BulbId id() {
         return new BulbId(1L);
@@ -17,7 +19,12 @@ public record InitialBulb(
     }
 
     @Override
-    public int count() {
+    public Count count() {
+        return new Count(INITIALE_COUNT);
+    }
+
+    @Override
+    public int nbActivation() {
         return 0;
     }
 }

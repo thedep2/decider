@@ -1,7 +1,8 @@
 package fr.depix.bulb_manager.framework.annotation;
 
-public interface Aggregate<I extends AggregateId> {
+import org.jmolecules.ddd.annotation.AggregateRoot;
 
-    I id();
+@AggregateRoot
+public interface Aggregate<I extends Identifier> extends Entity<I> {
 
 }

@@ -4,7 +4,7 @@ import java.util.function.Supplier;
 
 public interface Domain<
         A extends Aggregate<I>,
-        I extends AggregateId,
+        I extends Identifier,
         C extends Command<I>,
         R extends Repository<A, I>,
         E extends Event,

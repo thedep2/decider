@@ -2,7 +2,8 @@ package fr.depix.bulb_manager.framework.annotation;
 
 import java.util.Optional;
 
-public interface Repository<A extends Aggregate<I>, I extends AggregateId> {
+@org.jmolecules.ddd.annotation.Repository
+public interface Repository<A extends Aggregate<I>, I extends Identifier> {
 
     Optional<A> findById(I id);
 

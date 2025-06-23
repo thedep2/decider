@@ -1,12 +1,12 @@
 package fr.depix.bulb_manager.framework.service;
 
 import fr.depix.bulb_manager.framework.annotation.Aggregate;
-import fr.depix.bulb_manager.framework.annotation.AggregateId;
 import fr.depix.bulb_manager.framework.annotation.Command;
 import fr.depix.bulb_manager.framework.annotation.Decider;
 import fr.depix.bulb_manager.framework.annotation.Domain;
 import fr.depix.bulb_manager.framework.annotation.Event;
 import fr.depix.bulb_manager.framework.annotation.Evolve;
+import fr.depix.bulb_manager.framework.annotation.Identifier;
 import fr.depix.bulb_manager.framework.annotation.IsTerminal;
 import fr.depix.bulb_manager.framework.annotation.Repository;
 import fr.depix.bulb_manager.framework.annotation.ValidationError;
@@ -18,7 +18,7 @@ import java.util.Optional;
 
 public class CommandHandler<
         A extends Aggregate<I>,
-        I extends AggregateId,
+        I extends Identifier,
         C extends Command<I>,
         R extends Repository<A, I>,
         E extends Event,
@@ -37,6 +37,7 @@ public class CommandHandler<
         this.evolve = domain.evolve();
     }
 
+    @org.jmolecules.architecture.cqrs.CommandHandler
     public void handle(C command) {
 
         Optional<A> aggregate = repository.findById(command.aggregateId());

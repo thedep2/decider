@@ -1,6 +1,7 @@
 package fr.depix.bulb_manager.framework.annotation;
 
-public interface Command<I extends AggregateId> {
+@org.jmolecules.architecture.cqrs.Command
+public interface Command<I extends Identifier> {
 
     I aggregateId();
 }

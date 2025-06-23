@@ -15,7 +15,7 @@ public class InMemoryRepository implements BulbRepository {
     private BulbAggregate bulb;
 
     @Override
-    public Optional<BulbAggregate> get() {
+    public Optional<BulbAggregate> find() {
         return Optional.ofNullable(bulb);
     }
 
