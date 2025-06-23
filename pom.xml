@@ -30,7 +30,7 @@
         <java.version>24</java.version>
         <spring-modulith.version>1.4.1</spring-modulith.version>
         <jspecify.version>1.0.0</jspecify.version>
-        <jmolecules.version>1.9.0</jmolecules.version>
+        <jmolecules.version>1.10.0</jmolecules.version>
     </properties>
     <dependencies>
         <dependency>
