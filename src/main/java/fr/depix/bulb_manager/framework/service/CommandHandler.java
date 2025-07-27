@@ -21,7 +21,7 @@ public class CommandHandler<
         I extends Identifier,
         C extends Command<I>,
         R extends Repository<A, I>,
-        E extends Event,
+        E extends Event<I>,
         T extends IsTerminal<A, I>,
         D extends Decider<I, C, A, E, VE>,
         V extends Evolve<I, A, E>,
@@ -42,11 +42,11 @@ public class CommandHandler<
 
         Optional<A> aggregate = repository.findById(command.aggregateId());
 
-        final Decision<E, VE> decision = decider.apply(command, aggregate);
+        final Decision<E, VE, I> decision = decider.apply(command, aggregate);
 
         final A newState = switch (decision) {
-            case EventList<E, VE> events -> evolve.apply(aggregate, events.events());
-            case ErrorList<E, VE> ignored -> throw new RuntimeException();
+            case EventList<E, VE, I> events -> evolve.apply(aggregate, events.events());
+            case ErrorList<E, VE, I> ignored -> throw new RuntimeException();
         };
 
         repository.save(newState);

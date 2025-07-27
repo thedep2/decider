@@ -16,7 +16,9 @@ An Aggregate is a domain object that represents a business entity. It encapsulat
 
 ```java
 public interface Aggregate<I extends AggregateId> {
+
     I aggregateId();
+
     Long aggregateVersion();
 }
 ```
@@ -36,40 +38,117 @@ A Command represents an intention to change the state of an Aggregate. Commands 
 
 ```java
 public interface Command<I extends AggregateId> {
+
     I aggregateId();
+
     Long aggregateVersion();
+
     java.time.ZonedDateTime commandDate();
 }
 ```
 
 ### 4. Event
 
-An Event represents a fact that has occurred as a result of processing a Command. Events are immutable and contain information about what has happened.
+An Event represents a fact that has occurred as a result of processing a Command. Events are immutable and contain information about what has happened, including metadata for tracking and auditing.
 
 ```java
-public interface Event {
+
+@DomainEvent
+public interface Event<I extends Identifier> {
+
+    I aggregateId();
+
+    UUID eventId();
+
+    Long aggregateVersion();
+
+    String eventType();
+
+    Long eventVersion();
+
+    ZonedDateTime eventDate();
 }
 ```
+
+The Event interface is generic with `<I extends Identifier>` parameter, allowing events to be associated with specific aggregate identifier types. It includes several methods:
+
+- `aggregateId()`: Returns the identifier of the aggregate that the event relates to
+- `eventId()`: Returns a unique identifier for the event
+- `aggregateVersion()`: Returns the version of the aggregate when the event occurred
+- `eventType()`: Returns the type of the event as a string
+- `eventVersion()`: Returns the version of the event schema
+- `eventDate()`: Returns the date and time when the event occurred
 
 ### 5. Decider
 
-A Decider is a function that takes a Command and an Aggregate and produces a list of Events. It decides what events to produce based on the current state of the aggregate and the command being processed.
+A Decider is a function that takes a Command and an Aggregate and produces a Decision, which can be either a list of Events or a list of ValidationErrors. It decides what events to produce based on the current state of the aggregate and the command being processed.
 
 ```java
-public interface Decider<I extends AggregateId, C extends Command<I>, A extends Aggregate<I>, E extends Event> extends BiFunction<C, A, List<E>> {
+public interface Decider<I extends Identifier, C extends Command<I>, A extends Aggregate<I>, E extends Event<I>, VE extends ValidationError> extends BiFunction<C, Optional<A>, Decision<E, VE, I>> {
 }
 ```
 
-### 6. Evolve
+The Decider interface:
+
+- Take an Optional<A> instead of just A, to handle the case where the aggregate doesn't exist yet
+- Return a Decision<E, VE, I> instead of a List<E>, to handle validation errors
+- Include the ValidationError type parameter VE
+- Work with the generic Event<I> interface
+
+### 6. Decision
+
+A Decision represents the result of processing a Command. It can be either a list of Events (success) or a list of ValidationErrors (failure).
+
+```java
+public sealed interface Decision<E extends Event<I>, VE extends ValidationError, I extends Identifier> permits ErrorList, EventList {
+}
+```
+
+The Decision interface:
+
+- Be a sealed interface that permits only EventList and ErrorList implementations
+- Include three generic type parameters:
+    - E extends Event<I>: The event type, which is now generic with identifier type I
+    - VE extends ValidationError: The validation error type
+    - I extends Identifier: The identifier type
+
+#### EventList
+
+EventList represents a successful decision that produced a list of events.
+
+```java
+public record EventList<E extends Event<I>, VE extends ValidationError, I extends Identifier>(
+        List<E> events
+) implements Decision<E, VE, I> {
+}
+```
+
+#### ErrorList
+
+ErrorList represents a failed decision that produced a list of validation errors.
+
+```java
+public record ErrorList<E extends Event<I>, VE extends ValidationError, I extends Identifier>(
+        List<VE> errors
+) implements Decision<E, VE, I> {
+}
+```
+
+### 7. Evolve
 
 An Evolve function takes an Aggregate and a list of Events and produces a new Aggregate. It applies the events to the current state of the aggregate to produce a new state.
 
 ```java
-public interface Evolve<I extends AggregateId, A extends Aggregate<I>, E extends Event> extends BiFunction<A, List<E>, A> {
+public interface Evolve<I extends Identifier, A extends Aggregate<I>, E extends Event<I>> extends BiFunction<Optional<A>, List<E>, A> {
 }
 ```
 
-### 7. InitialState
+The Evolve interface:
+
+- Take an Optional<A> instead of just A, to handle the case where the aggregate doesn't exist yet
+- Work with the generic Event<I> interface
+
+### 8. InitialState
 
 An InitialState is a special type of Aggregate that represents the initial state of an Aggregate. It is used to create a new Aggregate with a predefined initial state.
 
@@ -78,7 +157,7 @@ public interface InitialState<I extends AggregateId> extends Aggregate<I> {
 }
 ```
 
-### 8. IsTerminal
+### 9. IsTerminal
 
 An IsTerminal is a predicate that determines if an Aggregate is in a terminal state. Terminal states are states from which no further state transitions are allowed.
 
@@ -87,28 +166,30 @@ public interface IsTerminal<A extends Aggregate<I>, I extends AggregateId> exten
 }
 ```
 
-### 9. Repository
+### 10. Repository
 
 A Repository is responsible for storing and retrieving Aggregates.
 
 ```java
 public interface Repository<A extends Aggregate<I>, I extends AggregateId> {
+
     Optional<A> findById(I id);
+
     void save(A aggregate);
 }
 ```
 
-### 10. CommandHandler
+### 11. CommandHandler
 
-A CommandHandler orchestrates the processing of a Command. It retrieves the Aggregate from the Repository, applies the Decider to produce Events, applies the Evolve function to produce a new state, and then saves the new state to the Repository.
+A CommandHandler orchestrates the processing of a Command. It retrieves the Aggregate from the Repository, applies the Decider to produce a Decision (either Events or ValidationErrors), applies the Evolve function to produce a new state if the decision was successful, and then saves the new state to the Repository.
 
 ```java
 public class CommandHandler<
         A extends Aggregate<I>,
-        I extends AggregateId,
+        I extends Identifier,
         C extends Command<I>,
         R extends Repository<A, I>,
-        E extends Event,
+        E extends Event<I>,
         T extends IsTerminal<A, I>,
         D extends Decider<I, C, A, E, VE>,
         V extends Evolve<I, A, E>,
@@ -127,17 +208,22 @@ public class CommandHandler<
     public void handle(C command) {
         Optional<A> aggregate = repository.findById(command.aggregateId());
 
-        final Decision<E, VE> decision = decider.apply(command, aggregate);
+        final Decision<E, VE, I> decision = decider.apply(command, aggregate);
 
         final A newState = switch (decision) {
-            case EventList<E, VE> events -> evolve.apply(aggregate, events.events());
-            case ErrorList<E, VE> ignored -> throw new RuntimeException();
+            case EventList<E, VE, I> events -> evolve.apply(aggregate, events.events());
+            case ErrorList<E, VE, I> ignored -> throw new RuntimeException();
         };
-
         repository.save(newState);
     }
 }
 ```
+
+The CommandHandler has been updated to:
+
+- Work with the generic Event<I> interface
+- Handle the updated Decision<E, VE, I> interface with three type parameters
+- Use pattern matching with the updated EventList<E, VE, I> and ErrorList<E, VE, I> types
 
 ## Flow of Command Processing
 

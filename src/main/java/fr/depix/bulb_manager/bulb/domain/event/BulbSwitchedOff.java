@@ -1,4 +1,24 @@
 package fr.depix.bulb_manager.bulb.domain.event;
 
-public record BulbSwitchedOff() implements BulbEvent {
+import fr.depix.bulb_manager.bulb.domain.aggregate.id.BulbId;
+
+import java.time.ZonedDateTime;
+import java.util.UUID;
+
+public record BulbSwitchedOff(
+        BulbId aggregateId,
+        UUID eventId,
+        Long aggregateVersion,
+        ZonedDateTime eventDate
+) implements BulbEvent {
+
+    @Override
+    public String eventType() {
+        return "BulbSwitchedOff";
+    }
+
+    @Override
+    public Long eventVersion() {
+        return 1L;
+    }
 }

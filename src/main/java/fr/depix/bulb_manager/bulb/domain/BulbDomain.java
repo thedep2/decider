@@ -25,6 +25,7 @@ import fr.depix.bulb_manager.framework.decision.EventList;
 
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.UUID;
 import java.util.function.Supplier;
 
 public record BulbDomain(
@@ -53,16 +54,16 @@ public record BulbDomain(
                 return new ErrorList<>(List.of(new BulbValidationError("Command ran on an old version of the aggregate, please retry with the latest version of the aggregate.")));
 
             if (command instanceof CreateBulB(BulbId bulbId, ZonedDateTime ignored) && bulbOptional.isEmpty())
-                return new EventList<>(List.of(new BulbCreated(bulbId)));
+                return new EventList<>(List.of(new BulbCreated(bulbId, UUID.randomUUID(), 0L, ZonedDateTime.now())));
 
             final BulbAggregate bulb = bulbOptional.get();
 
             return switch (command) {
-                case CreateBulB createBulB -> new EventList<>(List.of(new BulbCreated(createBulB.aggregateId())));
-                case BulbTurnOff ignored when bulb.isTurnOn() -> new EventList<>(List.of(new BulbSwitchedOff()));
+                case CreateBulB createBulB -> new EventList<>(List.of(new BulbCreated(createBulB.aggregateId(), UUID.randomUUID(), 0L, ZonedDateTime.now())));
+                case BulbTurnOff ignored when bulb.isTurnOn() -> new EventList<>(List.of(new BulbSwitchedOff(bulb.id(), UUID.randomUUID(), bulb.aggregateVersion(), ZonedDateTime.now())));
                 case BulbTurnOff ignored -> new EventList<>(List.of());
-                case BulbTurnOn ignored when !bulb.isTurnOn() && bulb.nbActivation() >= LIMIT -> new EventList<>(List.of(new BulbWentOut()));
-                case BulbTurnOn ignored when !bulb.isTurnOn() -> new EventList<>(List.of(new BulbSwitchedOn()));
+                case BulbTurnOn ignored when !bulb.isTurnOn() && bulb.nbActivation() >= LIMIT -> new EventList<>(List.of(new BulbWentOut(bulb.id(), UUID.randomUUID(), bulb.aggregateVersion(), ZonedDateTime.now())));
+                case BulbTurnOn ignored when !bulb.isTurnOn() -> new EventList<>(List.of(new BulbSwitchedOn(bulb.id(), UUID.randomUUID(), bulb.aggregateVersion(), ZonedDateTime.now())));
                 case BulbTurnOn ignored -> new EventList<>(List.of());
             };
         };
@@ -74,7 +75,7 @@ public record BulbDomain(
             BulbAggregate bulb = bulbOpt.orElse(initialState(new BulbId(0L)));
             for (BulbEvent event : bulbEvents) {
                 bulb = switch (event) {
-                    case BulbCreated bulbCreated -> initialState(bulbCreated.bulbId());
+                    case BulbCreated bulbCreated -> initialState(bulbCreated.aggregateId());
                     case BulbSwitchedOff ignored -> new OffBulb(bulb);
                     case BulbSwitchedOn ignored -> new OnBulb(bulb);
                     case BulbWentOut ignored -> terminalState(bulb);

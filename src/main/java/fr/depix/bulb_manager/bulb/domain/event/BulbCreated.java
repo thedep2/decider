@@ -2,5 +2,23 @@ package fr.depix.bulb_manager.bulb.domain.event;
 
 import fr.depix.bulb_manager.bulb.domain.aggregate.id.BulbId;
 
-public record BulbCreated(BulbId bulbId) implements BulbEvent {
+import java.time.ZonedDateTime;
+import java.util.UUID;
+
+public record BulbCreated(
+        BulbId aggregateId,
+        UUID eventId,
+        Long aggregateVersion,
+        ZonedDateTime eventDate
+) implements BulbEvent {
+
+    @Override
+    public String eventType() {
+        return "BulbCreated";
+    }
+
+    @Override
+    public Long eventVersion() {
+        return 1L;
+    }
 }

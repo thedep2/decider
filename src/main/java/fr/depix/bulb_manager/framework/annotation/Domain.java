@@ -7,7 +7,7 @@ public interface Domain<
         I extends Identifier,
         C extends Command<I>,
         R extends Repository<A, I>,
-        E extends Event,
+        E extends Event<I>,
         T extends IsTerminal<A, I>,
         D extends Decider<I, C, A, E, VE>,
         V extends Evolve<I, A, E>,

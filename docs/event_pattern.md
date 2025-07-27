@@ -8,73 +8,174 @@ The Event pattern is a key component of Event Sourcing, where the state of an ap
 
 ## Event Interface
 
-The project defines a sealed interface `Event` that permits only specific event implementations:
+The project defines a generic interface `Event` that includes methods for tracking and identifying events:
 
 ```java
-public sealed interface Event permits BulbSwitchedOff, BulbSwitchedOn, BulbWentOut {
+@DomainEvent
+public interface Event<I extends Identifier> {
+    I aggregateId();
+    UUID eventId();
+    Long aggregateVersion();
+    String eventType();
+    Long eventVersion();
+    ZonedDateTime eventDate();
 }
 ```
 
-This sealed interface ensures type safety and restricts the possible event types to a known set.
+This interface provides a robust structure for events with:
+- `aggregateId`: The identifier of the aggregate that the event relates to
+- `eventId`: A unique identifier for the event
+- `aggregateVersion`: The version of the aggregate when the event occurred
+- `eventType`: The type of the event as a string
+- `eventVersion`: The version of the event schema
+- `eventDate`: The date and time when the event occurred
+
+The generic type parameter `<I extends Identifier>` allows events to be associated with specific aggregate identifier types.
 
 ## Event Implementations
 
-The project currently has three event implementations:
-
-1. **BulbSwitchedOn**: Represents the fact that a bulb has been turned on
-   ```java
-   public record BulbSwitchedOn() implements Event {
-   }
-   ```
-
-2. **BulbSwitchedOff**: Represents the fact that a bulb has been turned off
-   ```java
-   public record BulbSwitchedOff() implements Event {
-   }
-   ```
-
-3. **BulbWentOut**: Represents the fact that a bulb has burned out after reaching its lifespan limit
-   ```java
-   public record BulbWentOut() implements Event {
-   }
-   ```
-
-All event implementations are Java records, which means they are immutable and provide built-in equals, hashCode, and toString methods.
-
-## Event Handling
-
-Events are produced by the `BulbService` when processing commands. The service uses a list of events to represent the result of a command:
+The project defines a `BulbEvent` interface that extends the generic Event interface with the BulbId type:
 
 ```java
-List<Event> events = switch (command) {
-    case BulbTurnOff ignored when bulb.isTurnOn() -> List.of(new BulbSwitchedOff());
-    case BulbTurnOff ignored -> List.of();
-    case BulbTurnOn ignored when !bulb.isTurnOn() && bulb.count() >= LIMIT -> List.of(new BulbWentOut());
-    case BulbTurnOn ignored when !bulb.isTurnOn() -> List.of(new BulbSwitchedOn());
-    case BulbTurnOn ignored -> List.of();
-};
-```
-
-This pattern matching approach provides a clear and concise way to determine which events should be produced based on the command and the current state of the bulb. Note that in some cases, an empty list is returned, indicating that the command did not result in any state change.
-
-## State Evolution
-
-The produced events are then used to evolve the state of the bulb. The service iterates through the list of events and applies each one to the current state:
-
-```java
-private static Bulb evolve(List<Event> events, Bulb bulb) {
-    for (Event event : events) {
-        bulb = switch (event) {
-            case BulbSwitchedOff ignored -> new Bulb(false, bulb.count());
-            case BulbSwitchedOn ignored -> new Bulb(true, bulb.count() + 1);
-            case BulbWentOut ignored -> new Bulb(false, bulb.count());
-        };
-    }
-    return bulb;
+public sealed interface BulbEvent extends Event<BulbId> permits BulbCreated, BulbSwitchedOff, BulbSwitchedOn, BulbWentOut {
 }
 ```
 
-This approach separates the decision logic (what event to produce) from the evolution logic (how to change the state based on the event), which is a key aspect of the Decider pattern.
+The project currently has four event implementations:
+
+1. **BulbCreated**: Represents the fact that a new bulb has been created
+   ```java
+   public record BulbCreated(
+       BulbId aggregateId,
+       UUID eventId,
+       Long aggregateVersion,
+       ZonedDateTime eventDate
+   ) implements BulbEvent {
+       @Override
+       public String eventType() {
+           return "BulbCreated";
+       }
+
+       @Override
+       public Long eventVersion() {
+           return 1L;
+       }
+   }
+   ```
+
+2. **BulbSwitchedOn**: Represents the fact that a bulb has been turned on
+   ```java
+   public record BulbSwitchedOn(
+       BulbId aggregateId,
+       UUID eventId,
+       Long aggregateVersion,
+       ZonedDateTime eventDate
+   ) implements BulbEvent {
+       @Override
+       public String eventType() {
+           return "BulbSwitchedOn";
+       }
+
+       @Override
+       public Long eventVersion() {
+           return 1L;
+       }
+   }
+   ```
+
+3. **BulbSwitchedOff**: Represents the fact that a bulb has been turned off
+   ```java
+   public record BulbSwitchedOff(
+       BulbId aggregateId,
+       UUID eventId,
+       Long aggregateVersion,
+       ZonedDateTime eventDate
+   ) implements BulbEvent {
+       @Override
+       public String eventType() {
+           return "BulbSwitchedOff";
+       }
+
+       @Override
+       public Long eventVersion() {
+           return 1L;
+       }
+   }
+   ```
+
+4. **BulbWentOut**: Represents the fact that a bulb has burned out after reaching its lifespan limit
+   ```java
+   public record BulbWentOut(
+       BulbId aggregateId,
+       UUID eventId,
+       Long aggregateVersion,
+       ZonedDateTime eventDate
+   ) implements BulbEvent {
+       @Override
+       public String eventType() {
+           return "BulbWentOut";
+       }
+
+       @Override
+       public Long eventVersion() {
+           return 1L;
+       }
+   }
+   ```
+
+All event implementations are Java records, which means they are immutable and provide built-in equals, hashCode, and toString methods. Each implementation includes:
+- The required fields from the Event interface (aggregateId, eventId, aggregateVersion, eventDate)
+- Implementation of the eventType() method to return the name of the event
+- Implementation of the eventVersion() method to return the version of the event schema (currently 1L for all events)
+
+## Event Handling
+
+Events are produced by the `BulbDecider` when processing commands. The decider uses the Decision framework to represent the result of a command:
+
+```java
+public Decision<BulbEvent, BulbValidationError, BulbId> apply(BulbCommand command, Optional<BulbAggregate> aggregate) {
+    // Decision logic that produces events with all required metadata
+    // Example for creating a new bulb:
+    return new EventList<>(List.of(
+        new BulbCreated(
+            command.aggregateId(),
+            UUID.randomUUID(),
+            1L,
+            ZonedDateTime.now()
+        )
+    ));
+}
+```
+
+The Decision framework has been enhanced to work with the generic Event interface:
+- `Decision<E extends Event<I>, VE extends ValidationError, I extends Identifier>`
+- `EventList<E extends Event<I>, VE extends ValidationError, I extends Identifier>`
+- `ErrorList<E extends Event<I>, VE extends ValidationError, I extends Identifier>`
+
+This pattern provides a clear and structured way to determine which events should be produced based on the command and the current state of the aggregate. The events now include all required metadata (aggregateId, eventId, aggregateVersion, eventDate, eventType, eventVersion).
+
+## State Evolution
+
+The produced events are then used to evolve the state of the aggregate. The `BulbEvolver` applies each event to the current state:
+
+```java
+public BulbAggregate apply(Optional<BulbAggregate> aggregate, List<BulbEvent> events) {
+    BulbAggregate result = aggregate.orElse(new InitialBulb(events.get(0).aggregateId()));
+    
+    for (BulbEvent event : events) {
+        result = switch (event) {
+            case BulbCreated ignored -> new InitialBulb(event.aggregateId());
+            case BulbSwitchedOff ignored -> new OffBulb(event.aggregateId(), event.aggregateVersion());
+            case BulbSwitchedOn ignored -> new OnBulb(event.aggregateId(), event.aggregateVersion(), new Count(1));
+            case BulbWentOut ignored -> new WentOutBulb(event.aggregateId(), event.aggregateVersion());
+        };
+    }
+    
+    return result;
+}
+```
+
+This approach separates the decision logic (what events to produce) from the evolution logic (how to change the state based on events), which is a key aspect of the Decider pattern. The evolution logic now uses the metadata from the events (like aggregateId and aggregateVersion) to create the new state.
 
 ## Future Enhancements
 
