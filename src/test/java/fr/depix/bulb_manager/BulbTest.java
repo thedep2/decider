@@ -6,6 +6,7 @@ import fr.depix.bulb_manager.bulb.domain.command.BulbTurnOn;
 import fr.depix.bulb_manager.bulb.domain.command.CreateBulB;
 import fr.depix.bulb_manager.bulb.domain.service.BulbService;
 import fr.depix.bulb_manager.bulb.infra.InMemoryRepository;
+import fr.depix.bulb_manager.framework.exception.AggregateNotFoundRuntimeException;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -117,7 +118,7 @@ class BulbTest {
             whenSwitchOn();
             throw new AssertionError("Should have thrown an exception");
         } catch (Exception e) {
-            Assertions.assertThat(e).isInstanceOf(RuntimeException.class);
+            Assertions.assertThat(e).isInstanceOf(AggregateNotFoundRuntimeException.class);
         }
 
     }

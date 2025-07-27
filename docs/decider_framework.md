@@ -205,25 +205,35 @@ public class CommandHandler<
         this.evolve = domain.evolve();
     }
 
-    public void handle(C command) {
-        Optional<A> aggregate = repository.findById(command.aggregateId());
+    @org.jmolecules.architecture.cqrs.CommandHandler
+    public A handle(C command) {
+        Optional<A> aggregate = repository.findAggregateById(command.aggregateId());
 
         final Decision<E, VE, I> decision = decider.apply(command, aggregate);
 
         final A newState = switch (decision) {
             case EventList<E, VE, I> events -> evolve.apply(aggregate, events.events());
-            case ErrorList<E, VE, I> ignored -> throw new RuntimeException();
+            case ErrorList<E, VE, I> errorList -> throw new ValidationRuntimeException(
+                                                                                        errorList.errors()
+                                                                                                 .stream()
+                                                                                                 .map(ValidationError::message)
+                                                                                                 .collect(Collectors.joining(" "))
+            );
         };
         repository.save(newState);
+        
+        return newState;
     }
 }
 ```
 
-The CommandHandler has been updated to:
+The CommandHandler:
 
-- Work with the generic Event<I> interface
-- Handle the updated Decision<E, VE, I> interface with three type parameters
-- Use pattern matching with the updated EventList<E, VE, I> and ErrorList<E, VE, I> types
+- Works with the generic Event<I> interface
+- Handles the Decision<E, VE, I> interface with three type parameters
+- Uses pattern matching with EventList<E, VE, I> and ErrorList<E, VE, I> types
+- Returns the new state after processing the command
+- Throws a ValidationRuntimeException with detailed error messages when validation fails
 
 ## Flow of Command Processing
 
@@ -242,6 +252,43 @@ The CommandHandler has been updated to:
 3. **Auditability**: The list of Events produced by the Decider can be stored for auditing purposes
 4. **Event Sourcing**: The list of Events can be used to rebuild the state of the Aggregate, enabling event sourcing
 5. **Immutability**: The Aggregate, Command, and Event objects are immutable, making the system more predictable and easier to reason about
+
+## Validation Framework
+
+The Decider Framework includes a validation system that allows for validating commands and aggregates before processing them. This helps ensure that only valid commands are processed and that the system maintains a consistent state.
+
+### 1. ValidationError
+
+The ValidationError interface represents an error that occurs during validation. It provides a message that describes the error.
+
+```java
+public interface ValidationError {
+    String message();
+}
+```
+
+### 2. ValidationRule
+
+The ValidationRule interface defines a rule that can be used to validate an object. It takes an object of type T and returns a list of validation errors if the object does not satisfy the rule.
+
+```java
+@FunctionalInterface
+public interface ValidationRule<T, VE extends ValidationError> {
+    List<VE> isSatisfiedBy(T object);
+}
+```
+
+### 3. ValidationRuntimeException
+
+The ValidationRuntimeException is thrown when validation fails. It includes a message that describes the validation errors.
+
+```java
+public class ValidationRuntimeException extends RuntimeException {
+    public ValidationRuntimeException(String message) {
+        super(message);
+    }
+}
+```
 
 ## Future Enhancements
 

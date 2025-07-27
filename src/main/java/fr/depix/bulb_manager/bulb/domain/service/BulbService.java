@@ -30,8 +30,8 @@ public class BulbService {
                              .isTurnOn();
     }
 
-    public void handleCommand(BulbCommand command) {
-        commandHandler.handle(command);
+    public BulbAggregate handleCommand(BulbCommand command) {
+        return commandHandler.handle(command);
     }
 
     public Long getAggregateVersion() {

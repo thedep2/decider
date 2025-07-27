@@ -95,6 +95,7 @@ The project uses JUnit 5 (Jupiter) for testing with AssertJ for assertions.
 - [X] apply Demeter's lay
 - [X] use JMolecule
 - [X] Add an aggregate version and command date to the command
+- [ ] Add business validation rules / DDD pattern specification
 - [ ] Persist lists of events
 - [ ] Persist command in the event
 - [ ] add code coverage
@@ -102,7 +103,6 @@ The project uses JUnit 5 (Jupiter) for testing with AssertJ for assertions.
 - [ ] add tests on evolver
 - [ ] Event sourcing
 - [ ] Module switch (two switches for one bulb)
-- [ ] Add business validation rules / DDD pattern specification
 - [ ] Add validation by ArchUnit
 
 ## Additional Documentation
