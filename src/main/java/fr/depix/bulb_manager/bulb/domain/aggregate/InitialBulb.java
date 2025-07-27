@@ -27,4 +27,9 @@ public record InitialBulb(
     public int nbActivation() {
         return 0;
     }
+
+    @Override
+    public Long aggregateVersion() {
+        return 0L;
+    }
 }

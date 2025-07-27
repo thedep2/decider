@@ -43,7 +43,8 @@ Each class has a single, well-defined responsibility.
 **Evaluation**: ✅ Respected
 
 - The `BulbRepository` interface is minimalist and contains only the necessary methods.
-- The `Command` interface is a marker interface with no methods, serving only to group related command types.
+- The `Command` interface contains only essential methods (aggregateId(), aggregateVersion(), and commandDate()) that all commands need to implement.
+- The `Aggregate` interface contains only essential methods (aggregateId() and aggregateVersion()) that all aggregates need to implement.
 - There are no "fat" interfaces that would force clients to implement unnecessary methods.
 
 ### Dependency Inversion Principle (DIP)

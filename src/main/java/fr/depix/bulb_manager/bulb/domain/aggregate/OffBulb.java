@@ -4,12 +4,12 @@ import fr.depix.bulb_manager.bulb.domain.aggregate.id.BulbId;
 
 public record OffBulb(
         BulbId id,
-        Count count
-
+        Count count,
+        Long aggregateVersion
 ) implements BulbAggregate {
 
     public OffBulb(BulbAggregate bulbAggregate) {
-        this(bulbAggregate.id(), bulbAggregate.count());
+        this(bulbAggregate.id(), bulbAggregate.count(), bulbAggregate.aggregateVersion() + 1L);
     }
 
     @Override

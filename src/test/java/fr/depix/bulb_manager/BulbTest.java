@@ -11,6 +11,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.time.ZonedDateTime;
+
 class BulbTest {
 
     final InMemoryRepository bulbRepository = new InMemoryRepository();
@@ -86,7 +88,7 @@ class BulbTest {
     }
 
     private void givenNewBulb() {
-        bulbService.handleCommand(new CreateBulB(new BulbId(1L)));
+        bulbService.handleCommand(new CreateBulB(new BulbId(1L), ZonedDateTime.now()));
     }
 
     private void thenIHaveATurnOffBulb() {
@@ -94,14 +96,29 @@ class BulbTest {
     }
 
     private void whenSwitchOn() {
-        bulbService.handleCommand(new BulbTurnOn(new BulbId(1L)));
+        final Long aggregateVersion = bulbService.getAggregateVersion();
+        bulbService.handleCommand(new BulbTurnOn(new BulbId(1L), aggregateVersion, ZonedDateTime.now()));
     }
 
     private void whenSwitchOff() {
-        bulbService.handleCommand(new BulbTurnOff(new BulbId(1L)));
+        final Long aggregateVersion = bulbService.getAggregateVersion();
+        bulbService.handleCommand(new BulbTurnOff(new BulbId(1L), aggregateVersion, ZonedDateTime.now()));
     }
 
     private void thenIHaveATurnOnBulb() {
         Assertions.assertThat(bulbService.isTurnOn()).isTrue();
+    }
+
+    @Test
+    @DisplayName("Given no bulb, when I switch on, then I have an error")
+    void test() {
+
+        try {
+            whenSwitchOn();
+            throw new AssertionError("Should have thrown an exception");
+        } catch (Exception e) {
+            Assertions.assertThat(e).isInstanceOf(RuntimeException.class);
+        }
+
     }
 }

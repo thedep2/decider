@@ -4,11 +4,12 @@ import fr.depix.bulb_manager.bulb.domain.BulbDomain;
 import fr.depix.bulb_manager.bulb.domain.aggregate.id.BulbId;
 
 public record WentOutBulb(
-        BulbId id
+        BulbId id,
+        Long aggregateVersion
 ) implements BulbAggregate {
 
     public WentOutBulb(BulbAggregate bulbAggregate) {
-        this(bulbAggregate.id());
+        this(bulbAggregate.id(), bulbAggregate.aggregateVersion() + 1L);
     }
 
     @Override

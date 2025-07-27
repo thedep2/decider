@@ -17,6 +17,7 @@ An Aggregate is a domain object that represents a business entity. It encapsulat
 ```java
 public interface Aggregate<I extends AggregateId> {
     I aggregateId();
+    Long aggregateVersion();
 }
 ```
 
@@ -36,6 +37,8 @@ A Command represents an intention to change the state of an Aggregate. Commands 
 ```java
 public interface Command<I extends AggregateId> {
     I aggregateId();
+    Long aggregateVersion();
+    java.time.ZonedDateTime commandDate();
 }
 ```
 
@@ -140,9 +143,11 @@ public class CommandHandler<
 
 1. A Command is created and passed to the CommandHandler
 2. The CommandHandler retrieves the Aggregate from the Repository
-3. The Decider produces a list of Events based on the Command and the current state of the Aggregate
-4. The Evolve function produces a new state based on the current state of the Aggregate and the list of Events
-5. The CommandHandler saves the new state to the Repository
+3. The Decider validates that the Command's aggregate version matches the current Aggregate version (optimistic concurrency control)
+4. The Decider produces a list of Events based on the Command and the current state of the Aggregate
+5. The Evolve function produces a new state based on the current state of the Aggregate and the list of Events
+6. The new state includes an incremented aggregate version
+7. The CommandHandler saves the new state to the Repository
 
 ## Benefits of the Decider Pattern
 
@@ -158,6 +163,8 @@ As outlined in the project roadmap, future enhancements to the Decider Framework
 
 1. **Initial State**: ✅ Support for creating an Aggregate with an initial state - Implemented with the InitialState interface and InitialBulb implementation
 2. **Terminal State**: ✅ Support for marking an Aggregate as terminal, preventing further state changes - Implemented with the IsTerminal interface and WentOutBulb implementation
-3. **Persist Lists of Events**: Store events in a persistent store for auditing and event sourcing
-4. **Event Sourcing**: Rebuild the state of an Aggregate from the sequence of Events
-5. **Improve the Framework**: Enhance the framework with additional features and optimizations
+3. **Aggregate Versioning**: ✅ Support for tracking aggregate versions for optimistic concurrency control - Implemented with the aggregateVersion() method in the Aggregate interface
+4. **Command Metadata**: ✅ Support for including command date and aggregate version in commands - Implemented with the aggregateVersion() and commandDate() methods in the Command interface
+5. **Persist Lists of Events**: Store events in a persistent store for auditing and event sourcing
+6. **Event Sourcing**: Rebuild the state of an Aggregate from the sequence of Events
+7. **Improve the Framework**: Enhance the framework with additional features and optimizations

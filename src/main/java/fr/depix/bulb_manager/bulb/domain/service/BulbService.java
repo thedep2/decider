@@ -34,4 +34,10 @@ public class BulbService {
         commandHandler.handle(command);
     }
 
+    public Long getAggregateVersion() {
+        return bulbRepository.find()
+                             .orElseThrow(AggregateNotFoundRuntimeException::new)
+                             .aggregateVersion();
+
+    }
 }

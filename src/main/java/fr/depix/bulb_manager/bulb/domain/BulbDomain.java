@@ -23,6 +23,7 @@ import fr.depix.bulb_manager.framework.annotation.ValidationError;
 import fr.depix.bulb_manager.framework.decision.ErrorList;
 import fr.depix.bulb_manager.framework.decision.EventList;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -48,13 +49,16 @@ public record BulbDomain(
             if (!(command instanceof CreateBulB ignored) && bulbOptional.isEmpty())
                 return new ErrorList<>(List.of(new BulbValidationError("Don't exist")));
 
-            if (command instanceof CreateBulB(BulbId bulbId) && bulbOptional.isEmpty())
+            if (bulbOptional.isPresent() && !command.aggregateVersion().equals(bulbOptional.get().aggregateVersion()))
+                return new ErrorList<>(List.of(new BulbValidationError("Command ran on an old version of the aggregate, please retry with the latest version of the aggregate.")));
+
+            if (command instanceof CreateBulB(BulbId bulbId, ZonedDateTime ignored) && bulbOptional.isEmpty())
                 return new EventList<>(List.of(new BulbCreated(bulbId)));
 
             final BulbAggregate bulb = bulbOptional.get();
 
             return switch (command) {
-                case CreateBulB createBulB -> new EventList<>(List.of(new BulbCreated(createBulB.bulbId())));
+                case CreateBulB createBulB -> new EventList<>(List.of(new BulbCreated(createBulB.aggregateId())));
                 case BulbTurnOff ignored when bulb.isTurnOn() -> new EventList<>(List.of(new BulbSwitchedOff()));
                 case BulbTurnOff ignored -> new EventList<>(List.of());
                 case BulbTurnOn ignored when !bulb.isTurnOn() && bulb.nbActivation() >= LIMIT -> new EventList<>(List.of(new BulbWentOut()));
@@ -87,6 +91,6 @@ public record BulbDomain(
 
     @Override
     public BulbAggregate terminalState(BulbAggregate state) {
-        return new WentOutBulb(state.id());
+        return new WentOutBulb(state);
     }
 }

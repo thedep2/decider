@@ -27,8 +27,10 @@ The project follows these architectural principles:
 - **SOLID Principles**: See [SOLID Analysis](docs/SOLID_analysis.md) for details
 - **Command Pattern**: Commands represent intentions to modify the state
     - Commands are implemented as Java records that implement a sealed Command interface
+    - Commands include the aggregate ID, aggregate version, and command date
     - The BulbService handles commands using pattern matching with a switch statement
     - This provides a clear separation between the intent to perform an action and the execution of that action
+    - Optimistic concurrency control is implemented by validating the command's aggregate version against the current aggregate version
 - **Event Pattern**: Events represent facts that have occurred as a result of command processing
     - Events are implemented as Java records that implement a sealed Event interface
     - The BulbService produces events based on commands and the current state
@@ -92,6 +94,7 @@ The project uses JUnit 5 (Jupiter) for testing with AssertJ for assertions.
 - [X] Terminal state
 - [X] apply Demeter's lay
 - [X] use JMolecule
+- [X] Add an aggregate version and command date to the command
 - [ ] Persist lists of events
 - [ ] Persist command in the event
 - [ ] add code coverage

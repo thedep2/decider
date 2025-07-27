@@ -18,9 +18,11 @@ The project has implemented the Command pattern:
 
 - **Command Interface**: A sealed interface that permits only specific command implementations
 - **Command Implementations**: Immutable record classes (BulbTurnOn, BulbTurnOff) representing actions
+- **Command Metadata**: Commands include the aggregate ID, aggregate version, and command date
 - **Command Handler**: The BulbService handles commands using pattern matching with a switch statement
+- **Optimistic Concurrency**: The system validates that the command's aggregate version matches the current aggregate version
 
-This implementation provides a clear separation between the intent to perform an action (the command) and the execution of that action (the handler).
+This implementation provides a clear separation between the intent to perform an action (the command) and the execution of that action (the handler). The inclusion of an aggregate version enables optimistic concurrency control, preventing conflicts when multiple commands target the same aggregate simultaneously.
 
 ## CQRS/ES (Command Query Responsibility Segregation / Event Sourcing)
 
@@ -131,6 +133,7 @@ Based on the roadmap in the README, here is the plan for implementing these prin
     - [X] Use a list of events
     - [X] Initial state - Implemented with the InitialState interface and InitialBulb implementation
     - [X] Terminal state - Implemented with the IsTerminal interface and WentOutBulb implementation
+    - [X] Add an aggregate version and command date to the command - Implemented to support optimistic concurrency control
     - [ ] Persist event lists
     - [ ] Complete event sourcing
 

@@ -90,7 +90,12 @@ These enhancements will further develop the Event Sourcing capabilities of the p
 The Event pattern works in conjunction with other patterns in the project:
 
 - **Command Pattern**: Commands represent intentions to modify state, and they produce events
+  - Commands include the aggregate ID, aggregate version, and command date
+  - The aggregate version is used for optimistic concurrency control
+  - The command date provides a timestamp for auditing and potentially time-based business rules
 - **Decider Pattern**: The decision logic produces events, and the evolution logic consumes events to produce new state
+  - The decider validates that the command's aggregate version matches the current aggregate version
+  - The evolve function increments the aggregate version when producing a new state
 - **CQRS**: Commands produce events, which are then used to update the write model
 
 Together, these patterns provide a robust foundation for building a maintainable and scalable application.
