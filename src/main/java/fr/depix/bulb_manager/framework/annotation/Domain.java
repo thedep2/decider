@@ -21,8 +21,8 @@ public interface Domain<
 
     V evolve();
 
-    A initialState(I id);
+    Supplier<A> initialState(I id);
 
-    A terminalState(A state);
+    Supplier<A> terminalState(A state);
 
 }

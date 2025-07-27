@@ -72,13 +72,13 @@ public record BulbDomain(
     @Override
     public BulbEvolver evolve() {
         return (bulbOpt, bulbEvents) -> {
-            BulbAggregate bulb = bulbOpt.orElse(initialState(new BulbId(0L)));
+            BulbAggregate bulb = bulbOpt.orElse(initialState(new BulbId(0L)).get());
             for (BulbEvent event : bulbEvents) {
                 bulb = switch (event) {
-                    case BulbCreated bulbCreated -> initialState(bulbCreated.aggregateId());
+                    case BulbCreated bulbCreated -> initialState(bulbCreated.aggregateId()).get();
                     case BulbSwitchedOff ignored -> new OffBulb(bulb);
                     case BulbSwitchedOn ignored -> new OnBulb(bulb);
-                    case BulbWentOut ignored -> terminalState(bulb);
+                    case BulbWentOut ignored -> terminalState(bulb).get();
                 };
             }
             return bulb;
@@ -86,12 +86,12 @@ public record BulbDomain(
     }
 
     @Override
-    public InitialBulb initialState(BulbId id) {
-        return new InitialBulb(id);
+    public Supplier<BulbAggregate> initialState(BulbId id) {
+        return () -> new InitialBulb(id);
     }
 
     @Override
-    public BulbAggregate terminalState(BulbAggregate state) {
-        return new WentOutBulb(state);
+    public Supplier<BulbAggregate> terminalState(BulbAggregate state) {
+        return () -> new WentOutBulb(state);
     }
 }
