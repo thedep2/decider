@@ -5,7 +5,7 @@ import java.util.Optional;
 @org.jmolecules.ddd.annotation.Repository
 public interface Repository<A extends Aggregate<I>, I extends Identifier> {
 
-    Optional<A> findById(I id);
+    Optional<A> findAggregateById(I id);
 
     void save(A newState);
 

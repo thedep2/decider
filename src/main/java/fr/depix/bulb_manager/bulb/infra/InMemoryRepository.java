@@ -24,7 +24,7 @@ public class InMemoryRepository implements BulbRepository {
     }
 
     @Override
-    public Optional<BulbAggregate> findById(BulbId id) {
+    public Optional<BulbAggregate> findAggregateById(BulbId id) {
         return Optional.ofNullable(bulb);
     }
 

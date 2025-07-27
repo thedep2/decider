@@ -40,7 +40,7 @@ public class CommandHandler<
     @org.jmolecules.architecture.cqrs.CommandHandler
     public void handle(C command) {
 
-        Optional<A> aggregate = repository.findById(command.aggregateId());
+        Optional<A> aggregate = repository.findAggregateById(command.aggregateId());
 
         final Decision<E, VE, I> decision = decider.apply(command, aggregate);
 
