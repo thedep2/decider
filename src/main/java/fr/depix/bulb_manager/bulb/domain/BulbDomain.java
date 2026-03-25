@@ -19,7 +19,6 @@ import fr.depix.bulb_manager.bulb.domain.service.BulbDecider;
 import fr.depix.bulb_manager.bulb.domain.service.BulbEvolver;
 import fr.depix.bulb_manager.bulb.domain.spi.BulbRepository;
 import fr.depix.bulb_manager.framework.annotation.Domain;
-import fr.depix.bulb_manager.framework.annotation.ValidationError;
 import fr.depix.bulb_manager.framework.decision.ErrorList;
 import fr.depix.bulb_manager.framework.decision.EventList;
 
@@ -30,7 +29,7 @@ import java.util.function.Supplier;
 
 public record BulbDomain(
         BulbRepository bulbRepository
-) implements Domain<BulbAggregate, BulbId, BulbCommand, BulbRepository, BulbEvent, BulbIsTerminal, BulbDecider, BulbEvolver, ValidationError> {
+) implements Domain<BulbAggregate, BulbId, BulbCommand, BulbRepository, BulbEvent, BulbIsTerminal, BulbDecider, BulbEvolver, BulbValidationError> {
 
     public static final int LIMIT = 2;
 

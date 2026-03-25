@@ -206,23 +206,21 @@ public class CommandHandler<
     }
 
     @org.jmolecules.architecture.cqrs.CommandHandler
-    public A handle(C command) {
+    public Result<E, VE> handle(C command) {
+
         Optional<A> aggregate = repository.findAggregateById(command.aggregateId());
 
         final Decision<E, VE, I> decision = decider.apply(command, aggregate);
 
-        final A newState = switch (decision) {
-            case EventList<E, VE, I> events -> evolve.apply(aggregate, events.events());
-            case ErrorList<E, VE, I> errorList -> throw new ValidationRuntimeException(
-                                                                                        errorList.errors()
-                                                                                                 .stream()
-                                                                                                 .map(ValidationError::message)
-                                                                                                 .collect(Collectors.joining(" "))
-            );
+        return switch (decision) {
+            case EventList<E, VE, I> events -> {
+                A newState = evolve.apply(aggregate, events.events());
+                repository.save(newState);
+                yield Result.success(events.events());
+            }
+            case ErrorList<E, VE, I> errorList -> Result.failure(errorList.errors());
         };
-        repository.save(newState);
-        
-        return newState;
+
     }
 }
 ```
@@ -232,7 +230,7 @@ The CommandHandler:
 - Works with the generic Event<I> interface
 - Handles the Decision<E, VE, I> interface with three type parameters
 - Uses pattern matching with EventList<E, VE, I> and ErrorList<E, VE, I> types
-- Returns the new state after processing the command
+- Returns a Result<E, VE> (Success with produced events or Failure with validation errors)
 - Throws a ValidationRuntimeException with detailed error messages when validation fails
 
 ## Flow of Command Processing
@@ -263,6 +261,7 @@ The ValidationError interface represents an error that occurs during validation.
 
 ```java
 public interface ValidationError {
+
     String message();
 }
 ```
@@ -272,8 +271,10 @@ public interface ValidationError {
 The ValidationRule interface defines a rule that can be used to validate an object. It takes an object of type T and returns a list of validation errors if the object does not satisfy the rule.
 
 ```java
+
 @FunctionalInterface
 public interface ValidationRule<T, VE extends ValidationError> {
+
     List<VE> isSatisfiedBy(T object);
 }
 ```
@@ -284,6 +285,7 @@ The ValidationRuntimeException is thrown when validation fails. It includes a me
 
 ```java
 public class ValidationRuntimeException extends RuntimeException {
+
     public ValidationRuntimeException(String message) {
         super(message);
     }

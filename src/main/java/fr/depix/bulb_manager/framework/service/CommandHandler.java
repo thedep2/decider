@@ -13,10 +13,9 @@ import fr.depix.bulb_manager.framework.annotation.ValidationError;
 import fr.depix.bulb_manager.framework.decision.Decision;
 import fr.depix.bulb_manager.framework.decision.ErrorList;
 import fr.depix.bulb_manager.framework.decision.EventList;
-import fr.depix.bulb_manager.framework.exception.ValidationRuntimeException;
+import fr.depix.bulb_manager.framework.result.Result;
 
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class CommandHandler<
         A extends Aggregate<I>,
@@ -40,24 +39,21 @@ public class CommandHandler<
     }
 
     @org.jmolecules.architecture.cqrs.CommandHandler
-    public A handle(C command) {
+    public Result<E, VE> handle(C command) {
 
         Optional<A> aggregate = repository.findAggregateById(command.aggregateId());
 
         final Decision<E, VE, I> decision = decider.apply(command, aggregate);
 
-        final A newState = switch (decision) {
-            case EventList<E, VE, I> events -> evolve.apply(aggregate, events.events());
-            case ErrorList<E, VE, I> errorList -> throw new ValidationRuntimeException(errorList.errors()
-                                                                                                .stream()
-                                                                                                .map(ValidationError::message)
-                                                                                                .collect(Collectors.joining(" "))
-            );
+        return switch (decision) {
+            case EventList<E, VE, I> events -> {
+                A newState = evolve.apply(aggregate, events.events());
+                repository.save(newState);
+                yield Result.success(events.events());
+            }
+            case ErrorList<E, VE, I> errorList -> Result.failure(errorList.errors());
         };
 
-        repository.save(newState);
-
-        return newState;
     }
 
 }

@@ -39,7 +39,7 @@ The project follows these architectural principles:
 - **Decider Pattern**: Separates decision logic from evolution logic
     - The Decider decides what events to produce based on the current state and the command
     - The Evolve function applies events to the current state to produce a new state
-    - The CommandHandler orchestrates the process of handling a command
+    - The CommandHandler orchestrates the process of handling a command and returns a Result (events or validation errors)
     - For more details, see [Decider Framework](docs/decider_framework.md)
 - **Spring Modulith**: Modules are defined by package structure with explicit dependencies
 

@@ -11,18 +11,26 @@ The Event pattern is a key component of Event Sourcing, where the state of an ap
 The project defines a generic interface `Event` that includes methods for tracking and identifying events:
 
 ```java
+
 @DomainEvent
 public interface Event<I extends Identifier> {
+
     I aggregateId();
+
     UUID eventId();
+
     Long aggregateVersion();
+
     String eventType();
+
     Long eventVersion();
+
     ZonedDateTime eventDate();
 }
 ```
 
 This interface provides a robust structure for events with:
+
 - `aggregateId`: The identifier of the aggregate that the event relates to
 - `eventId`: A unique identifier for the event
 - `aggregateVersion`: The version of the aggregate when the event occurred
@@ -124,6 +132,7 @@ The project currently has four event implementations:
    ```
 
 All event implementations are Java records, which means they are immutable and provide built-in equals, hashCode, and toString methods. Each implementation includes:
+
 - The required fields from the Event interface (aggregateId, eventId, aggregateVersion, eventDate)
 - Implementation of the eventType() method to return the name of the event
 - Implementation of the eventVersion() method to return the version of the event schema (currently 1L for all events)
@@ -137,17 +146,18 @@ public Decision<BulbEvent, BulbValidationError, BulbId> apply(BulbCommand comman
     // Decision logic that produces events with all required metadata
     // Example for creating a new bulb:
     return new EventList<>(List.of(
-        new BulbCreated(
-            command.aggregateId(),
-            UUID.randomUUID(),
-            1L,
-            ZonedDateTime.now()
-        )
+            new BulbCreated(
+                    command.aggregateId(),
+                    UUID.randomUUID(),
+                    1L,
+                    ZonedDateTime.now()
+            )
     ));
 }
 ```
 
 The Decision framework has been enhanced to work with the generic Event interface:
+
 - `Decision<E extends Event<I>, VE extends ValidationError, I extends Identifier>`
 - `EventList<E extends Event<I>, VE extends ValidationError, I extends Identifier>`
 - `ErrorList<E extends Event<I>, VE extends ValidationError, I extends Identifier>`
@@ -161,7 +171,7 @@ The produced events are then used to evolve the state of the aggregate. The `Bul
 ```java
 public BulbAggregate apply(Optional<BulbAggregate> aggregate, List<BulbEvent> events) {
     BulbAggregate result = aggregate.orElse(new InitialBulb(events.get(0).aggregateId()));
-    
+
     for (BulbEvent event : events) {
         result = switch (event) {
             case BulbCreated ignored -> new InitialBulb(event.aggregateId());
@@ -170,7 +180,7 @@ public BulbAggregate apply(Optional<BulbAggregate> aggregate, List<BulbEvent> ev
             case BulbWentOut ignored -> new WentOutBulb(event.aggregateId(), event.aggregateVersion());
         };
     }
-    
+
     return result;
 }
 ```
@@ -191,12 +201,12 @@ These enhancements will further develop the Event Sourcing capabilities of the p
 The Event pattern works in conjunction with other patterns in the project:
 
 - **Command Pattern**: Commands represent intentions to modify state, and they produce events
-  - Commands include the aggregate ID, aggregate version, and command date
-  - The aggregate version is used for optimistic concurrency control
-  - The command date provides a timestamp for auditing and potentially time-based business rules
+    - Commands include the aggregate ID, aggregate version, and command date
+    - The aggregate version is used for optimistic concurrency control
+    - The command date provides a timestamp for auditing and potentially time-based business rules
 - **Decider Pattern**: The decision logic produces events, and the evolution logic consumes events to produce new state
-  - The decider validates that the command's aggregate version matches the current aggregate version
-  - The evolve function increments the aggregate version when producing a new state
+    - The decider validates that the command's aggregate version matches the current aggregate version
+    - The evolve function increments the aggregate version when producing a new state
 - **CQRS**: Commands produce events, which are then used to update the write model
 
 Together, these patterns provide a robust foundation for building a maintainable and scalable application.
@@ -206,7 +216,7 @@ Together, these patterns provide a robust foundation for building a maintainable
 The project has implemented a framework to support the Event pattern:
 
 - **Event Interface**: A marker interface that all events must implement
-- **CommandHandler**: Orchestrates the process of handling a command, applying the decider to produce events, evolving the state, and saving the result
+- **CommandHandler**: Orchestrates the process of handling a command, applying the decider to produce events, evolving the state, saving the new state, and returns a Result (events or validation errors)
 - **Decider**: Produces events based on the current state and the command
 - **Evolve**: Applies events to the current state to produce a new state
 
